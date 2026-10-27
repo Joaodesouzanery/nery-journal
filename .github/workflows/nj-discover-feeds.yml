@@ -1,0 +1,22 @@
+name: nj-discover-feeds
+# Descobre feeds RSS/Atom das fontes e grava o resultado em nj_source_checks (precisa dos Secrets do Supabase).
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Id de uma fonte (vazio = todas)'
+        required: false
+        default: ''
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund
+      - run: npm run nj:discover -- ${{ inputs.source }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

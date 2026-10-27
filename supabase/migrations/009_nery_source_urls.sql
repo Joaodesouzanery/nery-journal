@@ -1,0 +1,33 @@
+-- Endereços das home de fontes que ainda não tinham URL (para a descoberta de feeds).
+-- São endereços conhecidos de memória: o workflow nj-discover-feeds confirma (home_status) e aponta os que falharem.
+update nj_sources s set url = v.url from (values
+  ('archdaily-inclui-edi-o-brasil','https://www.archdaily.com.br'),
+  ('bid-idb','https://www.iadb.org'),
+  ('bnamericas','https://www.bnamericas.com'),
+  ('building-design-construction','https://www.bdcnetwork.com'),
+  ('building-uk','https://www.building.co.uk'),
+  ('caf','https://www.caf.com'),
+  ('constru-o-mercado-pini','https://construcaomercado.pini.com.br'),
+  ('construction-dive-industry-dive','https://www.constructiondive.com'),
+  ('construction-enquirer','https://www.constructionenquirer.com'),
+  ('construction-executive-abc','https://www.constructionexec.com'),
+  ('construction-global','https://constructionglobal.com'),
+  ('construction-news','https://www.constructionnews.co.uk'),
+  ('dezeen','https://www.dezeen.com'),
+  ('dodge-construction-network-momentum-inde','https://www.construction.com'),
+  ('enr-engineering-news-record','https://www.enr.com'),
+  ('fgv-ibre-incc','https://portalibre.fgv.br'),
+  ('global-construction-review-ciob','https://www.globalconstructionreview.com'),
+  ('highways-today-world-highways','https://highways.today'),
+  ('international-construction-khl','https://www.khl.com'),
+  ('obras24horas','https://www.obras24horas.com.br'),
+  ('revista-o-empreiteiro','https://revistaoempreiteiro.com.br'),
+  ('the-construction-index','https://www.theconstructionindex.co.uk'),
+  ('abdib','https://www.abdib.org.br'),
+  ('abecip','https://www.abecip.org.br'),
+  ('abramat','https://www.abramat.org.br'),
+  ('secovi-sp','https://www.secovi.com.br'),
+  ('cau-br-e-confea','https://www.caubr.gov.br'),
+  ('antt-antaq-anac-aneel','https://www.gov.br/antt'),
+  ('dnit-min-cidades-min-transportes-bndes','https://www.gov.br/dnit')
+) as v(id,url) where s.id = v.id and s.url is null;
