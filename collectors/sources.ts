@@ -26,15 +26,25 @@ export interface SourceResult {
 type Json = Record<string, unknown>
 
 async function getJson(url: string, timeoutMs = 20000): Promise<unknown> {
-  const ctrl = new AbortController()
-  const t = setTimeout(() => ctrl.abort(), timeoutMs)
-  try {
-    const res = await fetch(url, { signal: ctrl.signal, headers: { accept: 'application/json', 'user-agent': 'nery-journal-collector/0.1' } })
-    if (!res.ok) throw new Error(`HTTP ${res.status} em ${url}`)
-    return await res.json()
-  } finally {
-    clearTimeout(t)
+  let lastErr: unknown
+  for (let tentativa = 1; tentativa <= 3; tentativa++) {
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), timeoutMs)
+    try {
+      const res = await fetch(url, { signal: ctrl.signal, headers: { accept: 'application/json', 'user-agent': 'nery-journal-collector/0.1' } })
+      if (!res.ok) throw new Error(`HTTP ${res.status} em ${url}`)
+      return await res.json()
+    } catch (e) {
+      // "fetch failed" esconde a causa real (DNS, reset, timeout): expõe para o log.
+      const cause = (e as { cause?: { code?: string; message?: string } }).cause
+      lastErr = new Error(`${(e as Error).message}${cause ? ` [${cause.code ?? cause.message}]` : ''} em ${url} (tentativa ${tentativa})`)
+      if (String((e as Error).message).startsWith('HTTP 4')) break // erro do cliente: repetir não ajuda
+      await new Promise((r) => setTimeout(r, 2000 * tentativa))
+    } finally {
+      clearTimeout(t)
+    }
   }
+  throw lastErr
 }
 
 const brDateToIso = (d: string): string | null => {
