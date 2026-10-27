@@ -71,6 +71,29 @@ export async function getArticles(limit = 30): Promise<ArticleRow[]> {
   }
 }
 
+export interface Indicador { nome: string; valor: string; fonte: string; url: string | null }
+
+/** Último valor de cada indicador de dados abertos coletado (BCB, IBGE, Banco Mundial). Vazio se ainda não houve coleta. */
+export async function getIndicadores(): Promise<Indicador[]> {
+  const db = client()
+  if (!db) return []
+  try {
+    const { data } = await db.from('nj_pauta_items').select('external_id,title,summary,url,created_at').eq('kind', 'dado')
+      .order('created_at', { ascending: false }).limit(60)
+    const seen = new Set<string>()
+    const out: Indicador[] = []
+    for (const r of (data ?? []) as { external_id: string; title: string; summary: string | null; url: string | null }[]) {
+      const key = r.external_id.split(':')[0]
+      if (seen.has(key)) continue
+      seen.add(key)
+      out.push({ nome: r.title, valor: '', fonte: (/Fonte: ([^.]+)/.exec(r.summary ?? '')?.[1] ?? '').trim(), url: r.url })
+    }
+    return out.slice(0, 8)
+  } catch {
+    return []
+  }
+}
+
 export async function getArticle(slug: string): Promise<ArticleRow | null> {
   const all = await getArticles(100)
   return all.find((a) => a.slug === slug) ?? null
