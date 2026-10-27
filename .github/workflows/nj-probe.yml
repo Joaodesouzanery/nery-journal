@@ -1,6 +1,8 @@
 name: nj-probe
 # Testa os coletores contra as APIs reais. Não usa segredos e não grava nada.
 on:
+  push:
+    paths: ['.github/triggers/probe']  # dispara por push deste arquivo (a integração não consegue usar o botão Run)
   workflow_dispatch:
     inputs:
       source:
@@ -17,3 +19,8 @@ jobs:
         with: { node-version: 22 }
       - run: npm install --no-audit --no-fund
       - run: npm run nj:probe -- ${{ inputs.source }}
+      - if: ${{ !cancelled() }}
+        run: node scripts/nj-licitacoes.mjs 2
+        env:
+          SUPABASE_URL: ''
+          SUPABASE_SERVICE_ROLE_KEY: ''
