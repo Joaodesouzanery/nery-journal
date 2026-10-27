@@ -16,7 +16,10 @@ const stripHtml = (s: string) => s.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, '
 const iso = (s: string): string | null => { const t = Date.parse(s); return Number.isNaN(t) ? null : new Date(t).toISOString() }
 
 export function parseFeed(xml: string): FeedItem[] {
-  const doc = parser.parse(xml) as Record<string, any>
+  // HTML e outros formatos não são feed: devolve vazio em vez de lançar (o parser estoura em páginas com muitas tags aninhadas).
+  if (!/<(rss|feed|rdf:RDF)\b/i.test(xml.slice(0, 2000)) || xml.length > 5_000_000) return []
+  let doc: Record<string, any>
+  try { doc = parser.parse(xml) as Record<string, any> } catch { return [] }
   const out: FeedItem[] = []
   for (const it of arr(doc?.rss?.channel?.item)) {
     const link = text(it.link).trim()

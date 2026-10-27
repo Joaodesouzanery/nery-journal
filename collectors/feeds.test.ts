@@ -32,3 +32,9 @@ test('robotsAllows respeita Disallow e Allow mais específico', () => {
   assert.equal(robotsAllows('User-agent: *\nDisallow: /', '/feed'), false)
   assert.equal(robotsAllows('', '/feed'), true)
 })
+
+test('parseFeed devolve vazio para HTML e XML inválido, sem lançar', () => {
+  assert.deepEqual(parseFeed('<!doctype html><html><body>' + '<div>'.repeat(500) + '</body></html>'), [])
+  assert.deepEqual(parseFeed('<rss><channel><item><title>x</item>'), [])
+  assert.deepEqual(parseFeed(''), [])
+})

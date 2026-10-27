@@ -1,6 +1,8 @@
 name: nj-collect
 # Coleta diária de dados abertos para a pauta (precisa dos Secrets SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY).
 on:
+  push:
+    paths: ['.github/triggers/collect']  # dispara por push deste arquivo (a integração não consegue usar o botão Run)
   schedule:
     - cron: '0 9 * * *'
   workflow_dispatch:

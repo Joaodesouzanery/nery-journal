@@ -25,6 +25,7 @@ const { data: sources, error } = await q
 if (error) { console.error(error.message); process.exit(1) }
 
 for (const s of sources) {
+ try {
   const home = await get(s.url)
   await sleep(1000)
   const robots = await get(new URL('/robots.txt', s.url).toString())
@@ -45,4 +46,5 @@ for (const s of sources) {
   await db.from('nj_source_checks').insert({ source_id: s.id, home_status: home.status, robots_status: robots.status, robots_allows: allows, feed_url: feed, terms_url: termsUrl, note: home.error ?? null })
   if (feed && allows !== false) await db.from('nj_sources').update({ feed_url: feed, terms_url: termsUrl }).eq('id', s.id)
   console.log(`${feed ? 'FEED' : 'sem feed'}  ${s.id}  home=${home.status} robots=${robots.status}${allows === false ? ' (bloqueia)' : ''}  ${feed ?? ''}`)
+ } catch (e) { console.log(`ERRO  ${s.id}  ${e}`) }
 }
