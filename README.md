@@ -1,40 +1,46 @@
 # Nery Journal
 
-Marca de notícias de construção/engenharia (regulatório depois). Este diretório guarda o template de carrossel; o coletor de dados abertos está em `api/` e `supabase/migrations/005_nery_journal.sql`.
+Notícias, indicadores e licitações de obras para construtoras e engenheiros (Grupo Nery). Site Next.js (Vercel) + Supabase (projeto GNC) + coleta em GitHub Actions.
 
-## Status (honesto)
+## Estrutura
 
-| Parte | Estado |
+| Pasta | O que é |
 |---|---|
-| Template de carrossel (`templates/carousel.html`) | Pronto como protótipo; renderiza. Os textos/dados de exemplo são **fictícios** |
-| Migração Supabase `005` | Escrita, **não aplicada** ao banco |
-| Coletores (`collectors/sources.ts`) | Escritos pela documentação pública, **não testados contra as APIs reais** (o ambiente de dev não alcança esses hosts) |
-| Cron + função (`api/nj-collect.ts`, `vercel.json`) | Escritos, **não implantados** |
-| DOU/INLABS, Caged, SINAPI Caixa, Eurostat, Census, RSS de veículos | Fase 2, não implementados |
+| `app/`, `components/`, `lib/` | Site Next.js (notícias, `/licitacoes`, plano Pro, newsletter, anuncie) |
+| `collectors/` | Coletores: dados abertos (`sources.ts`), licitações PNCP (`licitacoes.ts`), RSS/Atom (`feeds.ts`) |
+| `scripts/` | Execução dos coletores (`nj-probe`, `nj-collect`, `nj-licitacoes`, `nj-feeds`, `nj-discover-feeds`) |
+| `pipeline/` | Autoria própria: checagens (`checkArticle`), carrossel, redação com IA (opcional) |
+| `supabase/migrations/` | Banco (005–009). Tabelas `nj_*` com RLS; só o que é público tem política de leitura |
+| `templates/carousel.html` | Template de carrossel (Instagram/LinkedIn) |
+| `docs/` | Matriz de fontes (`fontes_nery_journal.xlsx`) e guia de marca |
 
-## Template de carrossel
+## Workflows (GitHub Actions)
 
-Abra `templates/carousel.html` no navegador. Cole o JSON do post e clique em **Aplicar**. "Modo limpo" mostra os slides em 1080×1350 para tirar print/exportar. Tipos de slide: `capa`, `fatos`, `dado`, `impacto`, `fonte`. Selo `PUBLI` e `CORREÇÃO` por campo (`publi.ativo`, `correcao`).
+Secrets necessários: `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`.
 
-Foto: preencha `foto.url`, `credito`, `licenca` e `origem_url`. Sem foto, a capa usa um fundo quadriculado (card tipográfico). O wordmark é texto provisório: troque pelo desenho próprio.
+- `nj-probe`: testa os coletores contra as APIs reais (não grava nada).
+- `nj-discover-feeds`: procura feeds RSS/Atom das fontes e grava em `nj_source_checks`.
+- `nj-collect`: diário, 09:00 UTC. Dados abertos, licitações e feeds → `nj_pauta_items` / `nj_licitacoes`.
+- `ci`: testes e build a cada push.
 
-## Coletor de dados abertos
+Cada um roda pelo botão **Run workflow** ou por push do arquivo correspondente em `.github/triggers/` (`probe`, `discover`, `collect`).
 
-Fontes: Banco Central (SGS), PNCP (licitações de obras acima de R$ 5 mi), IBGE (SIDRA), Banco Mundial.
+## Variáveis do Vercel
 
-1. Rode de uma máquina com internet: `npm run nj:probe` (não grava nada; imprime status e exemplos). Ajuste códigos/URLs em `collectors/sources.ts` conforme os erros. Itens a conferir primeiro: série 192 do BC (INCC-M), tabela 2296/variável 48 do IBGE (SINAPI), códigos de modalidade do PNCP (4, 5, 6).
-2. Aplique `supabase/migrations/005_nery_journal.sql` no projeto Supabase.
-3. No Vercel, configure `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` e `CRON_SECRET` (nunca exponha a service role no front-end).
-4. O cron roda todo dia às 09:00 UTC e grava em `nj_pauta_items`. Teste manual: `GET /api/nj-collect?source=bcb-sgs` com o cabeçalho `Authorization: Bearer <CRON_SECRET>`.
-
-As tabelas `nj_*` têm RLS ligado **sem política**: a chave anon não acessa nada. Isso difere das migrações 002/004, que são abertas.
+Veja `.env.example`. A service role nunca vai para o navegador.
 
 ## Regras de conteúdo
 
-- Veículos são radar de pauta; texto vem de fonte primária e dados. Nunca copiar texto de paywall nem traduzir/parafrasear matéria única.
-- Dados abertos exigem atribuição (BC: ODbL; Banco Mundial: CC BY 4.0, indicar alterações; IBGE: citar a fonte e confirmar os termos).
-- Foto: só licenciada ou própria; guarde licença e URL de origem em `nj_photos`. Sem rosto reconhecível nem logo.
-- Revisão humana obrigatória antes de publicar; publi rotulada; correção visível.
-- Antes de lançar o nome "Nery Journal": busca no INPI e advogado de propriedade intelectual.
+- Veículos são radar: só manchete, link e trecho curto (≤ 200 caracteres). Texto vem de fonte primária e dados.
+- Dados abertos exigem atribuição (BC: ODbL; Banco Mundial: CC BY 4.0; IBGE: citar a fonte).
+- Foto: só licenciada ou própria. Sem foto de matéria de terceiros.
+- Revisão humana obrigatória antes de publicar; publicidade rotulada; correção visível.
+- Textos legais (consentimento, privacidade, termos do Pro) são rascunhos: revisar com advogado. Buscar o nome no INPI.
 
-Matriz de fontes: `docs/fontes_nery_journal.xlsx`.
+## Desenvolvimento
+
+```
+npm install
+npm test          # funções puras (pipeline, licitações, feeds)
+npm run build
+```

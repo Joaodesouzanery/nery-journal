@@ -25,6 +25,13 @@ export default async function Article({ params }: Props) {
   if (!a) notFound()
   return (
     <article className="article">
+      {!a.is_placeholder && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org', '@type': 'NewsArticle', headline: a.title, description: a.lede,
+          datePublished: a.published_at ?? undefined, inLanguage: 'pt-BR',
+          author: { '@type': 'Organization', name: 'Nery Journal' }, publisher: { '@type': 'Organization', name: 'Grupo Nery' },
+        }).replace(/</g, '\\u003c') }} />
+      )}
       <div style={{ color: 'var(--muted)', fontSize: 14 }}>{a.category} • {fmtDate(a.published_at)}</div>
       <h1>{a.title}</h1>
       <p className="lede">{a.lede}</p>

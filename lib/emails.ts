@@ -36,6 +36,9 @@ export function weeklyEmail(p: { items: { title: string; url: string; category: 
 }
 
 /** Ponto de integração: troque pelo provedor escolhido (Resend, Brevo, SES...). */
-export async function sendMail(): Promise<never> {
+export async function sendMail(_msg: { to: string; subject: string; html: string; unsubUrl: string }): Promise<never> {
+  // Ao ligar o provedor, envie estes cabeçalhos (RFC 8058, exigidos por Gmail/Yahoo para envio em volume):
+  //   List-Unsubscribe: <unsubUrl>, <mailto:neryadministrativo@gmail.com?subject=cancelar>
+  //   List-Unsubscribe-Post: List-Unsubscribe=One-Click
   throw new Error('Provedor de e-mail não configurado.')
 }

@@ -20,6 +20,7 @@ export default async function Pro() {
       </ul>
       <p className="src">Os dados vêm do PNCP (fonte oficial); o serviço é a organização, o filtro e os alertas, não o acesso ao dado público. Direito de arrependimento de 7 dias (CDC, art. 49). Termos e política de privacidade em revisão.</p>
       {checkout && left !== 0 && <p><a className="btn accent" href={checkout} target="_blank" rel="noopener noreferrer">Assinar por R$ {PRO_PRICE}/mês</a></p>}
+      {!checkout && left !== 0 && <div className="disclosure">O pagamento será liberado em breve. Registre seu interesse abaixo: você garante a oferta de lançamento e avisamos quando abrir.</div>}
       {left === 0 && <div className="disclosure">As vagas da oferta acabaram. Deixe seu e-mail para ser avisado do próximo valor.</div>}
       <h2>Registrar interesse e filtros</h2>
       <p>Informe seu e-mail e o que quer acompanhar. Após o pagamento, ativamos seu acesso e você recebe o link privado da sua lista.</p>
