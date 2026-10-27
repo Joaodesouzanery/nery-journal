@@ -22,7 +22,7 @@ export function Header() {
             <li><Link href="/">Análises</Link></li>
             <li><Link href="/noticias">Notícias</Link></li>
             <li><Link href="/noticias#indicadores">Indicadores</Link></li>
-            <li><Link href="/noticias#licitacoes">Licitações</Link></li>
+            <li><Link href="/licitacoes">Licitações</Link></li>
             <li><Link href="/anuncie">Anuncie</Link></li>
             <li><Link href="/sobre">Sobre</Link></li>
           </ul>
@@ -43,7 +43,7 @@ export function Footer() {
       <div className="wrap">
         <AdSlot slot="footer" />
         <div className="cols">
-          <div><h4>Notícias</h4><ul><li><Link href="/">Análises</Link></li><li><Link href="/noticias">Últimas notícias</Link></li><li><Link href="/noticias#indicadores">Indicadores</Link></li><li><Link href="/noticias#licitacoes">Licitações de obras</Link></li></ul></div>
+          <div><h4>Notícias</h4><ul><li><Link href="/">Análises</Link></li><li><Link href="/noticias">Últimas notícias</Link></li><li><Link href="/noticias#indicadores">Indicadores</Link></li><li><Link href="/licitacoes">Licitações de obras</Link></li></ul></div>
           <div><h4>Dados</h4><ul><li>Banco Central</li><li>IBGE e SINAPI</li><li>PNCP</li><li>Diário Oficial da União</li></ul></div>
           <div><h4>Sobre</h4><ul><li><Link href="/sobre">Quem somos</Link></li><li><Link href="/politica-editorial">Política editorial</Link></li><li><Link href="/privacidade">Privacidade</Link></li><li><Link href="/anuncie">Anuncie</Link></li><li><Link href="/newsletter">Boletim Nery Journal</Link></li></ul></div>
           <div><h4>Setores</h4><ul><li>Construção</li><li style={{ color: '#999' }}>Regulação (em breve)</li></ul></div>

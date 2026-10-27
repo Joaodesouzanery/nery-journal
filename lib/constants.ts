@@ -31,3 +31,7 @@ export const CONSENT_ALERTAS =
   'Concordo em receber alertas (licitações de obras e normas) por e-mail. Entendo que posso cancelar a qualquer momento.'
 export const CONSENT_PARCEIROS =
   'Concordo em receber, por e-mail enviado pelo Nery Journal, ofertas e comunicados de patrocinadores. Meus dados NÃO são compartilhados com os patrocinadores.'
+
+export const PRO_SEATS = 10
+export const PRO_PRICE = '9,99'
+export const PRO_CONSENT = 'Concordo em receber contato sobre o plano Pro de licitações e que meu e-mail seja usado para isso. (rascunho — revisar com advogado)'

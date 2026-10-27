@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test pipeline/lib.test.ts collectors/*.test.ts",
     "nj:probe": "node scripts/nj-probe.mjs",
-    "nj:collect": "node scripts/nj-collect.mjs"
+    "nj:collect": "node scripts/nj-collect.mjs",
+    "nj:licitacoes": "node scripts/nj-licitacoes.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
