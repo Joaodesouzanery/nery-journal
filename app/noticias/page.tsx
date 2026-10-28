@@ -2,7 +2,6 @@ import { getArticles, getIndicadores, fmtDate, INDICADORES_PLACEHOLDER, LICITACO
 import { getLicitacoes, brl } from '@/lib/licitacoes'
 import { NewsCard, Visual } from '@/components/Cards'
 import Newsletter from '@/components/Newsletter'
-import AdSlot from '@/components/AdSlot'
 import Link from 'next/link'
 import Radar from '@/components/Radar'
 import { getRadar } from '@/lib/data'
@@ -55,7 +54,6 @@ export default async function Noticias({ searchParams }: { searchParams: Promise
           )}
         </section>
         <aside className="side">
-          <AdSlot slot="mpu" />
           <section id="indicadores">
             <h3>Indicadores</h3>
             {indicadores.length > 0 ? (

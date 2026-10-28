@@ -22,7 +22,7 @@ export async function getLicitacoes(opts: { days?: number; uf?: string; limit?: 
   if (!db) return []
   let q = db.from('nj_licitacoes').select(COLS).eq('is_obra', true)
     .gte('publicado_em', new Date(Date.now() - (opts.days ?? 7) * 86400000).toISOString())
-    .order('publicado_em', { ascending: false }).limit(opts.limit ?? 200)
+    .order('publicado_em', { ascending: false }).limit(opts.limit ?? 1000)
   if (opts.uf) q = q.eq('uf', opts.uf)
   const { data } = await q
   return (data ?? []) as LicRow[]

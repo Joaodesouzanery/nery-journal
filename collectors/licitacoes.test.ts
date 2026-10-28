@@ -8,6 +8,8 @@ test('classifyObra reconhece obra e descarta compra de material', () => {
   assert.equal(classifyObra('Obras de drenagem e saneamento'), true)
   assert.equal(classifyObra('Aquisição de material de consumo para escritório'), false)
   assert.equal(classifyObra('Serviços de limpeza e vigilância'), false)
+  assert.equal(classifyObra('Contratação de empresa para manejo de resíduos sólidos e limpeza urbana'), true)
+  assert.equal(classifyObra('Serviços de limpeza de fossas sépticas e esgotamento sanitário'), true)
 })
 
 test('normalizePncp mapeia campos e exige id e objeto', () => {

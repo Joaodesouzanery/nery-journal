@@ -1,0 +1,21 @@
+name: nj-texts
+# Guarda (em tabela privada) o texto das páginas do radar para conferência interna de fatos. Nunca exibido no site.
+on:
+  push:
+    paths: ['.github/triggers/texts']
+  schedule:
+    - cron: '40 9,14,20 * * *'   # 06:40, 11:40 e 17:40 (Brasília), antes de cada rodada de matérias
+  workflow_dispatch:
+jobs:
+  texts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund
+      - run: npm run nj:texts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

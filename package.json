@@ -14,6 +14,7 @@
     "nj:licitacoes": "node scripts/nj-licitacoes.mjs",
     "nj:feeds": "node scripts/nj-feeds.mjs",
     "nj:photos": "node scripts/nj-photos.mjs",
+    "nj:texts": "node scripts/nj-texts.mjs",
     "nj:discover": "node scripts/nj-discover-feeds.mjs"
   },
   "dependencies": {

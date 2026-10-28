@@ -1,12 +1,11 @@
 import Link from 'next/link'
-import CoverArt from './CoverArt'
 
-/** Foto livre da matéria ou, na falta dela, a ilustração do tema. */
+/** Foto livre da matéria; sem foto, o cartão fica só com texto (nunca ilustração própria). */
 export function Visual({ a }: { a: ArticleRow }) {
   return a.photo_url
     // eslint-disable-next-line @next/next/no-img-element
     ? <img className="coverimg" src={a.photo_url} alt="" loading="lazy" decoding="async" />
-    : <CoverArt category={a.category} />
+    : null
 }
 import { fmtDate } from '@/lib/data'
 import type { ArticleRow } from '@/lib/data'

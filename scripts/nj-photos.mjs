@@ -7,10 +7,22 @@ const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
 const db = createClient(url, key, { auth: { persistSession: false } })
 
-const { data: arts, error } = await db.from('nj_articles').select('id,slug,category,photo_query').eq('status', 'publicado').is('photo_id', null).eq('is_placeholder', false).limit(40)
+import { readFileSync } from 'node:fs'
+// "refazer" em .github/triggers/photos: troca as fotos de todas as matérias publicadas (ex.: depois de endurecer o filtro).
+let gatilho = ''
+try { gatilho = readFileSync(new URL('../.github/triggers/photos', import.meta.url), 'utf8') } catch {}
+const refazer = /refazer/.test(gatilho)
+let velhas = []
+if (refazer) {
+  const { data: cur } = await db.from('nj_articles').select('photo_id').eq('status', 'publicado').not('photo_id', 'is', null)
+  velhas = (cur ?? []).map((x) => x.photo_id)
+  await db.from('nj_articles').update({ photo_id: null }).eq('status', 'publicado')
+}
+let q = db.from('nj_articles').select('id,slug,category,photo_query').eq('status', 'publicado').is('photo_id', null).eq('is_placeholder', false).limit(60)
+const { data: arts, error } = await q
 if (error) { console.error(error.message); process.exit(1) }
-const { data: used } = await db.from('nj_photos').select('origin_url')
-const taken = new Set((used ?? []).map((p) => p.origin_url))
+const taken = new Set()
+if (!refazer) for (const p of (await db.from('nj_photos').select('origin_url')).data ?? []) taken.add(p.origin_url)
 
 let ok = 0
 for (const a of arts ?? []) {
@@ -30,3 +42,4 @@ for (const a of arts ?? []) {
   console.log(`[OK ] ${a.slug} <- ${chosen.license} · ${chosen.origin_url}`)
 }
 console.log(`${ok}/${(arts ?? []).length} matérias com foto`)
+if (refazer && velhas.length) await db.from('nj_photos').delete().in('id', velhas)

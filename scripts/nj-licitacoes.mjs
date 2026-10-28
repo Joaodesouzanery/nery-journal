@@ -3,7 +3,11 @@
 import { createClient } from '@supabase/supabase-js'
 import { collectPncpLicitacoes } from '../collectors/licitacoes.ts'
 
-const dias = Number(process.argv[2] || 2)
+// Dias para trás: argumento, ou "dias=N" em .github/triggers/collect (permite recarga histórica por push), ou 2.
+import { readFileSync } from 'node:fs'
+let gatilho = ''
+try { gatilho = readFileSync(new URL('../.github/triggers/collect', import.meta.url), 'utf8') } catch {}
+const dias = Number(process.argv[2] || /dias=(\d+)/.exec(gatilho)?.[1] || 2)
 const r = await collectPncpLicitacoes(dias)
 console.log(`[${r.ok ? 'OK ' : 'ERRO'}] pncp-licitacoes  ${r.items.length} obras${r.error ? '  ' + r.error : ''}`)
 for (const l of r.items.slice(0, 3)) console.log('  -', l.uf, l.objeto.slice(0, 90), l.valor_estimado)

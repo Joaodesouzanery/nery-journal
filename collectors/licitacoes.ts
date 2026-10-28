@@ -21,8 +21,12 @@ export interface Licitacao {
 const OBRA = /\b(obra|obras|engenharia|constru[cç][aã]o|pavimenta\w*|rodovia\w*|saneamento|edifica\w*|reforma|ponte|viaduto|terraplenagem|drenagem|recapeamento|urbaniza\w*|esgot\w*|adutora)\b/i
 const NAO_OBRA = /\b(material de consumo|aquisi[cç][aã]o de (?:equipamentos|medicamentos|material)|servi[cç]os? de (?:limpeza|vigil[aâ]ncia))\b/i
 
-/** Heurística simples: texto do objeto indica obra/serviço de engenharia e não é compra de material. */
+/** Saneamento amplo (água, esgoto, drenagem, resíduos): entra mesmo quando o objeto é serviço contínuo e não "obra". */
+const SANEAMENTO = /\b(saneamento|esgot\w*|drenagem|aterro sanit\w*|res[ií]duos? s[oó]lidos?|limpeza urbana|coleta de (?:lixo|res[ií]duos)|po[cç]os? tubulares?|abastecimento de [aá]gua|adutora|el[ei]vat[oó]ria|rede de [aá]gua|tratamento de (?:[aá]gua|esgoto)|ETA|ETE|manejo de [aá]guas pluviais|ligac[oõ]es? (?:domiciliares|de [aá]gua))\b/i
+
+/** Heurística simples: texto do objeto indica obra/serviço de engenharia (ou saneamento) e não é compra de material. */
 export function classifyObra(objeto: string): boolean {
+  if (SANEAMENTO.test(objeto) && !/\bmaterial de consumo\b/i.test(objeto)) return true
   return OBRA.test(objeto) && !NAO_OBRA.test(objeto)
 }
 
@@ -74,7 +78,7 @@ async function page(url: string): Promise<{ data?: PncpRaw[]; totalPaginas?: num
   throw new Error('PNCP: 429 persistente')
 }
 
-export async function collectPncpLicitacoes(daysBack = 2, maxPages = 6): Promise<{ ok: boolean; items: Licitacao[]; error?: string }> {
+export async function collectPncpLicitacoes(daysBack = 2, maxPages = daysBack > 3 ? 20 : 6): Promise<{ ok: boolean; items: Licitacao[]; error?: string }> {
   const items: Licitacao[] = []
   try {
     const fim = new Date()

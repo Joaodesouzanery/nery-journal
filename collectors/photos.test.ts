@@ -17,6 +17,8 @@ test('pickPhotos aceita CC0/domínio público e rejeita CC BY, vertical, pequena
     page('File:Workers on site.jpg', 'CC0'),
     page('File:Company logo.jpg', 'CC0'),
     page('File:Diagram.png', 'CC0', 2000, 1200, 'image/png'),
+    page('File:Sewage plant (Journal, 1899).jpg', 'Public domain'),
+    page('File:Plant engraving.jpg', 'CC0'),
   ])
   assert.deepEqual(ok.map((p) => p.license), ['CC0', 'Public domain'])
   assert.equal(ok[0].credit, 'Autor')

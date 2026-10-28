@@ -20,8 +20,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         {!indexable && <div className="notice"><b>Site em construção.</b> Versão de testes: as matérias estão sendo publicadas aos poucos.</div>}
-        <Header />
         <TopAd />
+        <Header />
         <main>{children}</main>
         <Footer />
         <a className="feedback" href="/sobre#contato">Feedback</a>

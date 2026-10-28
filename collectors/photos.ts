@@ -6,6 +6,9 @@ export interface CommonsPhoto { url: string; origin_url: string; license: string
 const FREE = /^(cc0|cc[- ]?zero|public domain|pd[- ]|pdm|no restrictions|copyrighted free use)/i
 const BANNED = /\b(logo|map|mapa|diagram|flag|bandeira|poster|portrait|retrato|people|person|crowd|protest|manifesta\w*|svg|screenshot|icon|chart|gr[aá]fico|child|children|woman|man|worker\w*|soldier\w*|president|minister)\b/i
 
+/** Gravuras, desenhos, fotos históricas e digitalizações: não servem como foto de notícia atual. */
+const OLD_OR_ART = /\b(engraving|drawing|painting|illustration|lithograph\w*|sketch|vintage|historic\w*|postcard|scan(ned)?|newspaper|journal|magazine|woodcut|etching|archive\w*|museum|(1[0-8]\d\d|19[0-7]\d))\b/i
+
 export const THEME_QUERIES: Record<string, string[]> = {
   saneamento: ['sewage treatment plant', 'water treatment plant', 'water pipeline construction', 'wastewater tank aerial'],
   infraestrutura: ['bridge construction', 'highway construction', 'road construction aerial', 'tunnel construction'],
@@ -36,7 +39,7 @@ export function pickPhotos(pages: CommonsPage[]): CommonsPhoto[] {
     if (!ii || !ii.mime || !/^image\/jpeg$/.test(ii.mime)) continue
     const lic = ii.extmetadata?.LicenseShortName?.value ?? ''
     const desc = `${p.title ?? ''} ${(ii.extmetadata?.ImageDescription?.value ?? '').replace(/<[^>]*>/g, ' ')} ${ii.extmetadata?.Categories?.value ?? ''}`
-    if (!FREE.test(lic) || BANNED.test(desc)) continue
+    if (!FREE.test(lic) || BANNED.test(desc) || OLD_OR_ART.test(desc)) continue
     const w = ii.width ?? 0, h = ii.height ?? 0
     if (w < 1000 || w < h * 1.2) continue
     const url = ii.thumburl ?? ii.url
