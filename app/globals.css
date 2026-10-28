@@ -283,3 +283,12 @@ a { color: inherit; }
 .busca-form { display: flex; gap: 10px; margin: 8px 0 18px; max-width: 640px; } .busca-form input { flex: 1; font: inherit; padding: 12px 14px; border: 1px solid #cfd6db; border-radius: 8px; min-width: 0; }
 @media (max-width: 700px) { .header .top { flex-wrap: wrap; gap: 10px; } .header .util { width: 100%; justify-content: space-between; gap: 10px; } .header .search { flex: 1 1 100%; } }
 .adslot button.adplaceholder { align-content: center; gap: 2px; }
+
+/* Feedback */
+.feedback { border: 0; cursor: pointer; font-family: inherit; }
+.fbform { display: grid; gap: 12px; } .fbform h2 { margin: 0; font-weight: 500; font-size: 22px; }
+.fbform label { display: grid; gap: 4px; font-size: 13px; color: #555; }
+.fbform textarea, .fbform input[type=email] { font: inherit; font-size: 15px; padding: 10px; border: 1px solid #cfd6db; border-radius: 6px; width: 100%; box-sizing: border-box; }
+.stars { display: flex; gap: 4px; } .stars button { border: 0; background: none; font-size: 34px; line-height: 1; color: #cfd6db; cursor: pointer; padding: 0 2px; } .stars button.on { color: #f5b301; }
+.useful { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-top: 1px solid #e3e7ea; margin-top: 24px; padding-top: 16px; }
+@media (max-width: 700px) { .feedback { display: block; top: auto; bottom: 74px; right: 0; } }

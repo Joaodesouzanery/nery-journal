@@ -1,7 +1,7 @@
 // Busca de fotos reais com licença livre (CC0 / domínio público) no Wikimedia Commons.
 // Só entram fotos que não exigem crédito (CC0 e domínio público). Pessoas, logotipos, mapas e diagramas são evitados pelo título/descrição.
 
-export interface CommonsPhoto { url: string; origin_url: string; license: string; credit: string; width: number; height: number }
+export interface CommonsPhoto { url: string; origin_url: string; license: string; credit: string; width: number; height: number; text: string }
 
 const FREE = /^(cc0|cc[- ]?zero|public domain|pd[- ]|pdm|no restrictions|copyrighted free use)/i
 const BANNED = /\b(logo|map|mapa|diagram|flag|bandeira|poster|portrait|retrato|people|person|crowd|protest|manifesta\w*|svg|screenshot|icon|chart|gr[aá]fico|child|children|woman|man|worker\w*|soldier\w*|president|minister)\b/i
@@ -23,10 +23,52 @@ export const THEME_QUERIES: Record<string, string[]> = {
 
 const norm = (c: string) => c.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]/g, '')
 
-/** Consultas candidatas em inglês: a da matéria (se houver) e as do tema. */
-export function photoQueries(category: string, photoQuery?: string | null): string[] {
+/** Termos do título (pt) -> consulta de foto em inglês, do mais específico ao genérico. */
+const TERMOS: [RegExp, string][] = [
+  [/aterro sanit|res[ií]duos|limpeza urbana|coleta de lixo/i, 'landfill waste facility'],
+  [/drenagem|[aá]guas pluviais|enchente/i, 'storm drain culvert'],
+  [/esgot|\bETE\b/i, 'sewage treatment plant'],
+  [/reúso|reuso|reuse/i, 'water reuse treatment plant'],
+  [/pfas|contamina|qualidade da [aá]gua|monitorad/i, 'river water sampling'],
+  [/adutora|tubula|rede de [aá]gua|abastecimento/i, 'water pipeline'],
+  [/po[cç]o/i, 'water well drilling'],
+  [/paviment|asfalt|recapeamento|vicinal/i, 'asphalt road paving'],
+  [/rodovia|\bBR-\d+|estrada|DNIT/i, 'highway road'],
+  [/ponte|viaduto/i, 'bridge'],
+  [/aeroporto|airport/i, 'airport terminal'],
+  [/ferrovia|metr[oô]|trem/i, 'railway track'],
+  [/porto/i, 'port cranes'],
+  [/escola|creche|sala de aula/i, 'school building'],
+  [/hospital|sa[uú]de|\bUBS\b|\bUPA\b/i, 'hospital building'],
+  [/habita|moradia|minha casa|casa pr[oó]pria/i, 'housing development'],
+  [/contenc[aã]o|encosta/i, 'retaining wall slope'],
+  [/custo|sinapi|cub|incc/i, 'building construction site'],
+  [/produ[cç][aã]o na constru|atividade da constru|construction activity/i, 'construction site crane'],
+]
+export function queriesFromTitle(title: string): string[] {
+  return TERMOS.filter(([re]) => re.test(title)).map(([, q]) => q)
+}
+
+/** Consultas candidatas em inglês, da mais específica à mais genérica: a da matéria, as do título e as do tema. */
+export function photoQueries(category: string, photoQuery?: string | null, title?: string): string[] {
   const theme = THEME_QUERIES[norm(category)] ?? THEME_QUERIES.default
-  return [...(photoQuery ? [photoQuery] : []), ...theme]
+  return [...new Set([...(photoQuery ? [photoQuery] : []), ...(title ? queriesFromTitle(title) : []), ...theme])]
+}
+
+const GENERIC = new Set(['construction', 'site', 'building', 'aerial', 'view', 'with', 'from', 'the', 'and', 'under', 'new'])
+const tokens = (q: string) => q.toLowerCase().split(/[^a-z]+/).filter((t) => t.length >= 4 && !GENERIC.has(t)).map((t) => t.replace(/s$/, ''))
+
+/** Quantos termos específicos da consulta aparecem no título/descrição/categorias da foto (0 = foto genérica). */
+export function relevance(query: string, photo: { text: string }): number {
+  const t = tokens(query)
+  return t.filter((x) => photo.text.includes(x)).length
+}
+
+/** Melhor foto para a consulta: maior correlação; empate por tamanho. `min` = correlação mínima aceita. */
+export function bestPhoto<T extends { text: string; width: number }>(query: string, photos: T[], min = 1): T | null {
+  const ranked = photos.map((p) => ({ p, r: relevance(query, p) })).filter((x) => x.r >= min)
+    .sort((a, b) => b.r - a.r || b.p.width - a.p.width)
+  return ranked[0]?.p ?? null
 }
 
 interface CommonsPage { title?: string; imageinfo?: { thumburl?: string; url?: string; width?: number; height?: number; mime?: string; descriptionurl?: string; extmetadata?: Record<string, { value?: string }> }[] }
@@ -44,7 +86,7 @@ export function pickPhotos(pages: CommonsPage[]): CommonsPhoto[] {
     if (w < 1000 || w < h * 1.2) continue
     const url = ii.thumburl ?? ii.url
     if (!url) continue
-    out.push({ url, origin_url: ii.descriptionurl ?? ii.url ?? url, license: lic, credit: (ii.extmetadata?.Artist?.value ?? '').replace(/<[^>]*>/g, '').trim() || 'Wikimedia Commons', width: w, height: h })
+    out.push({ url, origin_url: ii.descriptionurl ?? ii.url ?? url, license: lic, credit: (ii.extmetadata?.Artist?.value ?? '').replace(/<[^>]*>/g, '').trim() || 'Wikimedia Commons', width: w, height: h, text: desc.toLowerCase() })
   }
   return out
 }

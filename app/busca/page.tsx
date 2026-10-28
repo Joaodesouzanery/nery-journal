@@ -6,15 +6,15 @@ import { fmtDate } from '@/lib/data'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Pesquisar', robots: { index: false, follow: false } }
 
-type Tipo = 'tudo' | 'noticias' | 'radar' | 'licitacoes' | 'paginas'
+type Tipo = 'tudo' | 'noticias' | 'licitacoes' | 'paginas'
 
 export default async function Busca({ searchParams }: { searchParams: Promise<{ q?: string; tipo?: string }> }) {
   const { q, tipo: t } = await searchParams
   const termo = sanitizarTermo(q)
-  const tipo: Tipo = (['noticias', 'radar', 'licitacoes', 'paginas'] as const).find((x) => x === t) ?? 'tudo'
+  const tipo: Tipo = (['noticias', 'licitacoes', 'paginas'] as const).find((x) => x === t) ?? 'tudo'
   const r = termo ? await pesquisar(termo, tipo === 'tudo' ? 10 : 50) : null
-  const n = r ? { noticias: r.artigos.length, radar: r.radar.length, licitacoes: r.licitacoes.length, paginas: r.paginas.length } : null
-  const total = n ? n.noticias + n.radar + n.licitacoes + n.paginas : 0
+  const n = r ? { noticias: r.artigos.length, licitacoes: r.licitacoes.length, paginas: r.paginas.length } : null
+  const total = n ? n.noticias + n.licitacoes + n.paginas : 0
   const href = (x: Tipo) => `/busca?q=${encodeURIComponent(termo ?? '')}${x === 'tudo' ? '' : `&tipo=${x}`}`
   const show = (x: Exclude<Tipo, 'tudo'>) => tipo === 'tudo' || tipo === x
   return (
@@ -24,14 +24,13 @@ export default async function Busca({ searchParams }: { searchParams: Promise<{ 
         <input type="search" name="q" defaultValue={q ?? ''} placeholder="Notícias, licitações, saneamento, cidade…" aria-label="Pesquisar no site" minLength={2} required autoFocus />
         <button className="btn accent" type="submit">Pesquisar</button>
       </form>
-      {!termo && <p className="lead">Digite ao menos 2 letras para pesquisar em matérias, radar do setor, licitações e páginas do site.</p>}
+      {!termo && <p className="lead">Digite ao menos 2 letras para pesquisar em matérias, licitações e páginas do site.</p>}
       {r && n && (
         <>
           <p className="lic-count">{total} resultado{total === 1 ? '' : 's'} para “{termo}”</p>
           <div className="ufs">
             <Link className={`uf ${tipo === 'tudo' ? 'on' : ''}`} href={href('tudo')}>Tudo ({total})</Link>
             <Link className={`uf ${tipo === 'noticias' ? 'on' : ''}`} href={href('noticias')}>Matérias ({n.noticias})</Link>
-            <Link className={`uf ${tipo === 'radar' ? 'on' : ''}`} href={href('radar')}>Radar ({n.radar})</Link>
             <Link className={`uf ${tipo === 'licitacoes' ? 'on' : ''}`} href={href('licitacoes')}>Licitações ({n.licitacoes})</Link>
             <Link className={`uf ${tipo === 'paginas' ? 'on' : ''}`} href={href('paginas')}>Páginas ({n.paginas})</Link>
           </div>
@@ -39,11 +38,6 @@ export default async function Busca({ searchParams }: { searchParams: Promise<{ 
           {show('noticias') && r.artigos.length > 0 && (
             <section className="home-sec"><h2 className="h2">Matérias</h2>
               <ul className="home-list">{r.artigos.map((a) => <li key={a.slug}><Link href={`/construcao/${a.slug}`}><span className="tag">{a.category}</span><span>{a.title}<br /><small style={{ color: '#6b757d' }}>{fmtDate(a.published_at)}</small></span></Link></li>)}</ul>
-            </section>
-          )}
-          {show('radar') && r.radar.length > 0 && (
-            <section className="home-sec"><h2 className="h2">Radar do setor</h2>
-              <ul className="home-list">{r.radar.map((i) => <li key={i.id}><a href={i.url} target="_blank" rel="noopener noreferrer nofollow"><span className="tag">Fonte externa</span><span>{i.title}<br /><small style={{ color: '#6b757d' }}>{fmtDate(i.published_at)}</small></span></a></li>)}</ul>
             </section>
           )}
           {show('licitacoes') && r.licitacoes.length > 0 && (

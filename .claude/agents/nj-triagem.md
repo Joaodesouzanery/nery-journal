@@ -15,3 +15,6 @@ Saída: lista ordenada (máx. 5) com tema, nota, fonte primária (URL) ou "radar
 
 ## Rodada diária (07h, 12h, 18h Brasília)
 Escolha até **6 pautas por rodada** para o Brasil todo: ~2 de dados/licitações (fonte oficial), ~2 de saneamento, ~2 de curiosidade internacional (construção, engenharia e saneamento) que sirvam a qualquer leitor, como as curiosidades do Not Journal. Evite repetir tema do dia. Notícia de veículo (inclusive em inglês) é só **base de pauta**: informe quais fontes cobrem o fato; sem fonte primária nem segunda fonte independente, não avance.
+
+## Cobertura nacional por estado
+O jornal é do Brasil todo. Em cada rodada, varie os estados: não repita a mesma UF duas vezes seguidas e inclua SP, MG, RJ, PR, RS, BA, PE e CE com frequência (veja `select uf, count(*) from nj_licitacoes ... group by uf`). Gravando a matéria, preencha `nj_articles.uf` (sigla do estado principal; vazio para matéria nacional/internacional). Não há radar público: toda matéria é texto próprio; links de veículos só como fonte ao final.

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Header, Footer, TopAd } from '@/components/Chrome'
 import Newsletter from '@/components/Newsletter'
+import { FeedbackModal } from '@/components/FeedbackModal'
 
 const indexable = process.env.NEXT_PUBLIC_INDEXABLE === '1'
 
@@ -24,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Header />
         <main>{children}</main>
         <Footer />
-        <a className="feedback" href="/sobre#contato">Feedback</a>
+        <FeedbackModal />
         <Newsletter variant="bar" />
       </body>
     </html>

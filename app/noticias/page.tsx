@@ -3,31 +3,35 @@ import { getLicitacoes, brl } from '@/lib/licitacoes'
 import { NewsCard, Visual } from '@/components/Cards'
 import Newsletter from '@/components/Newsletter'
 import Link from 'next/link'
-import Radar from '@/components/Radar'
-import { getRadar } from '@/lib/data'
 
 export const revalidate = 300
 export const metadata = { title: 'Últimas notícias' }
 
-export default async function Noticias({ searchParams }: { searchParams: Promise<{ tema?: string; idioma?: string }> }) {
-  const { tema, idioma } = await searchParams
-  const [items, indicadores, lics, radar] = await Promise.all([getArticles(40), getIndicadores(), getLicitacoes({ days: 7, limit: 100 }), getRadar(60)])
-  const onlyExamples = items.every((a) => a.is_placeholder)
+export default async function Noticias({ searchParams }: { searchParams: Promise<{ cat?: string; uf?: string }> }) {
+  const { cat, uf } = await searchParams
+  const [items, indicadores, lics] = await Promise.all([getArticles(100), getIndicadores(), getLicitacoes({ days: 7, limit: 100 })])
   const topLics = [...lics].sort((a, b) => (b.valor_estimado ?? 0) - (a.valor_estimado ?? 0)).slice(0, 5)
-  const radarAll = radar
-  const radarShown = radarAll.filter((i) => (!tema || i.tema === tema) && (!idioma || i.lang === idioma))
-  const temaCount = new Map<string, number>()
-  for (const i of radarAll) temaCount.set(i.tema, (temaCount.get(i.tema) ?? 0) + 1)
-  const real = onlyExamples && radar.length > 0 ? [] : items
-  const [featured, ...rest] = real
+  const cats = [...new Set(items.map((a) => a.category))]
+  const ufs = [...new Set(items.map((a) => a.uf).filter((u): u is string => !!u))].sort()
+  const shown = items.filter((a) => (!cat || a.category === cat) && (!uf || a.uf === uf))
+  const [featured, ...rest] = shown
+  const q = (o: { cat?: string; uf?: string }) => { const p = new URLSearchParams(); const m = { cat, uf, ...o }; if (m.cat) p.set('cat', m.cat); if (m.uf) p.set('uf', m.uf); const t = p.toString(); return `/noticias${t ? `?${t}` : ''}` }
   return (
     <div className="wrap">
-      <h1 className="h1" id="busca">Últimas notícias</h1>
+      <h1 className="h1">Últimas notícias</h1>
+      <div className="ufs" aria-label="Filtrar por assunto">
+        <Link className={`uf ${!cat ? 'on' : ''}`} href={q({ cat: undefined })}>Tudo ({items.length})</Link>
+        {cats.map((c) => <Link key={c} className={`uf ${cat === c ? 'on' : ''}`} href={q({ cat: c })}>{c}</Link>)}
+      </div>
+      {ufs.length > 0 && (
+        <div className="ufs" aria-label="Filtrar por estado">
+          {ufs.map((u) => <Link key={u} className={`uf ${uf === u ? 'on' : ''}`} href={q({ uf: uf === u ? undefined : u })}>{u}</Link>)}
+        </div>
+      )}
       {featured && (
         <section className="feature">
           <Link href={`/construcao/${featured.slug}`} className="cover img cat-mercado" style={{ aspectRatio: '16/10', minHeight: 200 }}>
             <Visual a={featured} />
-            {featured.is_placeholder && <span className="badge">EXEMPLO</span>}
           </Link>
           <div>
             <div className="tag">{featured.category}</div>
@@ -37,21 +41,10 @@ export default async function Noticias({ searchParams }: { searchParams: Promise
           <Newsletter variant="box" />
         </section>
       )}
-      {!featured && <div style={{ maxWidth: 520, margin: '8px 0 24px' }}><Newsletter variant="box" /></div>}
+      {!featured && <div className="disclosure">Nenhuma matéria com esses filtros.</div>}
       <div className="layout">
         <section className="cards" aria-label="Notícias">
           {rest.map((a) => <NewsCard key={a.slug} a={a} />)}
-          {radarAll.length > 0 && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <div className="ufs" style={{ margin: '0 0 16px' }} aria-label="Filtrar radar">
-                <Link className={`uf ${!tema && !idioma ? 'on' : ''}`} href="/noticias">Tudo ({radarAll.length})</Link>
-                {[...temaCount.entries()].sort((a, b) => b[1] - a[1]).map(([t, n]) => <Link key={t} className={`uf ${tema === t ? 'on' : ''}`} href={`/noticias?tema=${encodeURIComponent(t)}`}>{t} ({n})</Link>)}
-                <Link className={`uf ${idioma === 'en' ? 'on' : ''}`} href="/noticias?idioma=en">Internacional (EN)</Link>
-                <Link className={`uf ${idioma === 'pt' ? 'on' : ''}`} href="/noticias?idioma=pt">Brasil (PT)</Link>
-              </div>
-              <Radar items={radarShown} />
-            </div>
-          )}
         </section>
         <aside className="side">
           <section id="indicadores">

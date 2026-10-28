@@ -1,7 +1,7 @@
 // Respostas SINTÉTICAS do Commons, inventadas para o teste.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { pickPhotos, photoQueries } from './photos.ts'
+import { pickPhotos, photoQueries, queriesFromTitle, relevance, bestPhoto } from './photos.ts'
 
 const page = (title: string, lic: string, w = 2000, h = 1200, mime = 'image/jpeg', desc = '') => ({
   title, imageinfo: [{ thumburl: 'https://upload.example/x.jpg', url: 'https://upload.example/o.jpg', width: w, height: h, mime, descriptionurl: 'https://commons.example/File:x', extmetadata: { LicenseShortName: { value: lic }, ImageDescription: { value: desc }, Artist: { value: '<a>Autor</a>' } } }],
@@ -29,4 +29,14 @@ test('photoQueries põe a consulta da matéria primeiro e usa o tema', () => {
   assert.equal(q[0], 'landfill aerial view')
   assert.ok(q.includes('sewage treatment plant'))
   assert.ok(photoQueries('Algo novo').includes('construction site'))
+})
+
+test('consultas do título e correlação da foto', () => {
+  assert.deepEqual(queriesFromTitle('Conceição do Mato Dentro licita R$ 132,5 milhões em resíduos e limpeza pública'), ['landfill waste facility'])
+  const q = photoQueries('Saneamento', 'landfill waste facility', 'Aterro sanitário do DF')
+  assert.equal(q[0], 'landfill waste facility')
+  const a = { text: 'sewage plant tank', width: 3000 }, b = { text: 'landfill with waste trucks', width: 1500 }
+  assert.equal(relevance('landfill waste facility', b), 2)
+  assert.equal(bestPhoto('landfill waste facility', [a, b]), b)
+  assert.equal(bestPhoto('landfill waste facility', [a]), null)
 })

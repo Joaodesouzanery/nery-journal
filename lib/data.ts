@@ -14,6 +14,7 @@ export interface ArticleRow {
   is_placeholder: boolean
   ai_assisted: boolean
   photo_url?: string | null
+  uf?: string | null
   cover?: { numero: string; legenda: string } | null
 }
 
@@ -60,7 +61,7 @@ function client() {
   return url && key ? createClient(url, key, { auth: { persistSession: false } }) : null
 }
 
-const COLS = 'slug,sector,category,title,lede,body_md,sources,published_at,is_placeholder,ai_assisted,photo_id,cover'
+const COLS = 'slug,sector,category,title,lede,body_md,sources,published_at,is_placeholder,ai_assisted,photo_id,cover,uf'
 
 export async function getArticles(limit = 30): Promise<ArticleRow[]> {
   const db = client()

@@ -3,12 +3,12 @@ export const metadata = { title: 'Sobre', description: 'Missão, visão e valore
 const VALORES = [
   ['Rigor', 'Todo dado nasce de fonte primária (órgãos, atos e bases abertas). Se não dá para confirmar, não publicamos.'],
   ['Independência', 'Texto próprio, sem cópia de veículos. Patrocínio é sempre identificado como “Publicidade” e nunca influencia a pauta.'],
-  ['Transparência', 'Cada matéria lista as fontes, a data e o que foi feito com apoio de IA. Erros são corrigidos e avisados.'],
+  ['Transparência', 'Cada matéria lista as fontes e a data. Erros são corrigidos e avisados.'],
   ['Utilidade', 'Informação que ajuda a decidir: orçar, licitar, comprar, contratar e investir em obras.'],
   ['Responsabilidade', 'Respeito à lei, aos direitos autorais e à privacidade. Dados públicos tratados com cuidado.'],
 ] as const
 
-const ETAPAS = ['Radar de fontes do Brasil e do mundo', 'Fonte primária e fatos conferidos', 'Redação própria', 'Verificação de números e originalidade', 'Revisão editorial e publicação']
+const ETAPAS = ['Radar de fontes do Brasil e do mundo', 'Fonte primária e fatos conferidos', 'Redação própria', 'Verificação de números e originalidade', 'Publicação']
 
 export default function Sobre() {
   return (
@@ -28,7 +28,7 @@ export default function Sobre() {
 
       <h2 className="h2">Como produzimos</h2>
       <ol className="etapas">{ETAPAS.map((e) => <li key={e}>{e}</li>)}</ol>
-      <p style={{ maxWidth: 760 }}>Fontes e veículos servem de base e ficam sempre citados e linkados; o texto é nosso. Parte do trabalho usa inteligência artificial e todo conteúdo passa por verificação antes de ir ao ar. Conheça a <a href="/politica-editorial">política editorial</a>.</p>
+      <p style={{ maxWidth: 760 }}>Fontes e veículos servem de base e ficam sempre citados e linkados; o texto é nosso. Todo conteúdo passa por verificação antes de ir ao ar. Conheça a <a href="/politica-editorial">política editorial</a>.</p>
 
       <div className="disclosure"><b>Transparência:</b> o Grupo Nery atua no setor da construção. Declaramos essa relação para que o leitor avalie o conteúdo com esse contexto.</div>
 

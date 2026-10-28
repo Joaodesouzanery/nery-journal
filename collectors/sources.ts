@@ -96,7 +96,7 @@ export async function collectBcb(): Promise<SourceResult> {
 // Filtros do servidor podem ser ignorados em silêncio (relato público), então filtramos aqui por palavra-chave e valor.
 // Modalidades (tabela PNCP): 4 concorrência eletrônica, 5 concorrência presencial, 6 pregão eletrônico — conferir no probe.
 // ---------------------------------------------------------------------------
-export const PNCP_MODALIDADES = [4, 5, 6]
+export const PNCP_MODALIDADES = [4, 5, 6, 7, 8]  // + pregão presencial (7) e dispensa (8)
 export const PNCP_KEYWORDS = /\b(obra|obras|engenharia|constru[cç][aã]o|pavimenta|rodovia|saneamento|edifica|reforma|ponte|viaduto|terraplenagem|drenagem)\b/i
 export const PNCP_MIN_VALOR = 5_000_000
 

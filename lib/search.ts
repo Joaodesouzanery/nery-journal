@@ -1,4 +1,4 @@
-// Pesquisa no site: sanitiza o termo e consulta artigos, radar e licitações (leitura pública, RLS).
+// Pesquisa no site: sanitiza o termo e consulta artigos e licitações (leitura pública, RLS).
 import { createClient } from '@supabase/supabase-js'
 
 export const PAGINAS = [
@@ -28,26 +28,22 @@ function pub() {
 
 export interface Resultados {
   artigos: { slug: string; title: string; lede: string; category: string; published_at: string | null }[]
-  radar: { id: string; title: string; url: string; summary: string | null; published_at: string | null }[]
   licitacoes: { pncp_id: string; objeto: string; orgao: string | null; uf: string | null; municipio: string | null; valor_estimado: number | null; link: string | null }[]
   paginas: typeof PAGINAS[number][]
 }
 
 export async function pesquisar(t: string, limite = 20): Promise<Resultados> {
-  const out: Resultados = { artigos: [], radar: [], licitacoes: [], paginas: [...buscarPaginas(t)] }
+  const out: Resultados = { artigos: [], licitacoes: [], paginas: [...buscarPaginas(t)] }
   const db = pub()
   if (!db) return out
   const p = `%${t}%`
-  const [a, r, l] = await Promise.all([
+  const [a, l] = await Promise.all([
     db.from('nj_articles').select('slug,title,lede,category,published_at').eq('sector', 'construcao')
       .or(`title.ilike.${p},lede.ilike.${p},body_md.ilike.${p}`).order('published_at', { ascending: false }).limit(limite),
-    db.from('nj_pauta_items').select('id,title,url,summary,published_at').eq('kind', 'noticia')
-      .or(`title.ilike.${p},summary.ilike.${p}`).order('published_at', { ascending: false, nullsFirst: false }).limit(limite),
     db.from('nj_licitacoes').select('pncp_id,objeto,orgao,uf,municipio,valor_estimado,link').eq('is_obra', true)
       .or(`objeto.ilike.${p},orgao.ilike.${p},municipio.ilike.${p}`).order('publicado_em', { ascending: false }).limit(limite),
   ])
   out.artigos = (a.data ?? []) as Resultados['artigos']
-  out.radar = ((r.data ?? []) as Resultados['radar']).filter((x) => x.url)
   out.licitacoes = (l.data ?? []) as Resultados['licitacoes']
   return out
 }

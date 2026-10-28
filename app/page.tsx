@@ -1,9 +1,8 @@
 import Link from 'next/link'
-import { getArticles, getIndicadores, getRadar } from '@/lib/data'
+import { getArticles, getIndicadores } from '@/lib/data'
 import { getLicitacoes, brl } from '@/lib/licitacoes'
 import { ehSaneamento } from '@/lib/radar'
 import { CoverCard, NewsCard } from '@/components/Cards'
-import Radar from '@/components/Radar'
 import AdSlot from '@/components/AdSlot'
 import Newsletter from '@/components/Newsletter'
 
@@ -12,7 +11,7 @@ export const revalidate = 300
 const isDados = (a: { sources: { primary?: boolean }[] }) => a.sources.some((s) => s.primary)
 
 export default async function Home() {
-  const [items, radar, indicadores, lics] = await Promise.all([getArticles(40), getRadar(12), getIndicadores(), getLicitacoes({ days: 14 })])
+  const [items, indicadores, lics] = await Promise.all([getArticles(40), getIndicadores(), getLicitacoes({ days: 14 })])
   const [a, b, c, d, ...rest] = items
   const analises = items.filter(isDados).slice(0, 4)
   const sanea = items.filter((x) => x.category === 'Saneamento' || ehSaneamento(x.title)).slice(0, 3)
@@ -85,7 +84,6 @@ export default async function Home() {
         </section>
       )}
 
-      <Radar items={radar} title="Radar do setor" />
       <div style={{ maxWidth: 560, margin: '28px 0' }}><Newsletter variant="box" /></div>
     </div>
   )

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getArticle, fmtDate } from '@/lib/data'
+import { ArticleUseful } from '@/components/FeedbackModal'
 
 export const revalidate = 300
 
@@ -41,7 +42,7 @@ export default async function Article({ params }: Props) {
       <p className="lede">{a.lede}</p>
       {a.is_placeholder && <div className="disclosure"><b>EXEMPLO.</b> Conteúdo fictício para validar o layout. Não é notícia.</div>}
       <div className="body">{renderBody(a.body_md)}</div>
-      {a.ai_assisted && <div className="disclosure">Produzido com apoio de IA e revisado por editor.</div>}
+      {!a.is_placeholder && <ArticleUseful slug={a.slug} />}
       <div className="src">
         <b>Fontes</b>
         <ul>

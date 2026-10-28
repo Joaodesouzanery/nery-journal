@@ -51,7 +51,7 @@ export function Footer() {
           <div><h4>Sobre</h4><ul><li><Link href="/sobre">Quem somos</Link></li><li><Link href="/politica-editorial">Política editorial</Link></li><li><Link href="/privacidade">Privacidade</Link></li><li><Link href="/newsletter">Boletim Nery Journal</Link></li></ul></div>
           <div><h4>Setores</h4><ul><li>Construção</li><li style={{ color: '#999' }}>Regulação (em breve)</li></ul></div>
         </div>
-        <p className="legal">© Grupo Nery · São Paulo/SP e Brasília/DF · <a href="mailto:neryadministrativo@gmail.com">neryadministrativo@gmail.com</a>. Conteúdo produzido com apoio de IA e revisado por editor. Fontes e licenças identificadas em cada matéria. Espaços identificados como “Publicidade” são patrocinados.</p>
+        <p className="legal">© Grupo Nery · São Paulo/SP e Brasília/DF · <a href="mailto:neryadministrativo@gmail.com">neryadministrativo@gmail.com</a>. Fontes identificadas em cada matéria. Espaços identificados como “Publicidade” são patrocinados.</p>
       </div>
     </footer>
   )
