@@ -18,3 +18,6 @@ coleta (GitHub Actions)  →  triagem  →  fonte primária  →  fatos  →  re
 Regras: texto próprio; todo número está nos fatos; sobreposição ≤ 20% com a fonte; ao menos uma fonte primária; sem sensacionalismo; **publicação só após aprovação humana** (`status='publicado'`, `published_at`, `reviewed_by`, `reviewed_at`).
 
 Como rodar hoje (sem chave de API): peça no chat "rascunhos de hoje"; o Claude executa as etapas, mostra os rascunhos e publica o que você aprovar. Para rodar sozinho todo dia é preciso uma rotina com conector do Supabase (claude.ai/code/routines) ou uma `ANTHROPIC_API_KEY` em workflow.
+
+## Textos das fontes (nj_source_texts)
+O workflow `nj-texts` (06:40/11:40/17:40 BRT) baixa o texto das páginas do radar (robots.txt respeitado, 1 req/s por host, sem contornar bloqueios) para a tabela **privada** `nj_source_texts` (RLS sem políticas). Uso exclusivo: conferência interna de fatos e de originalidade. Nunca exibido no site, nunca republicado.
