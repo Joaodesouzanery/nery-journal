@@ -156,31 +156,87 @@ export async function collectPncp(daysBack = 2): Promise<SourceResult> {
 // IBGE — API de agregados (SIDRA). Cite sempre "Fonte: IBGE". Termos de reuso do IBGE têm sinais conflitantes: confirmar.
 // Tabela/variável abaixo vêm de memória/fonte secundária: o probe mostra se respondem. Ajuste IBGE_QUERIES conforme o resultado.
 // ---------------------------------------------------------------------------
+// SIDRA: a API de agregados (servicodados) não responde a servidores fora do Brasil; apisidra.ibge.gov.br responde.
 export const IBGE_QUERIES = [
-  { id: 'sinapi-custo-m2', nome: 'SINAPI — custo médio do m²', agregado: 2296, variavel: 48, periodos: '-2' },
+  { id: 'sinapi-custo-m2', nome: 'SINAPI — custo médio do m²', tabela: 2296, variavel: 48 },
 ]
+
+type SidraRow = Record<string, string>
+
+/** Primeira linha da SIDRA é o cabeçalho; as demais trazem V (valor), MN (unidade) e as dimensões (D1N, D2N...). */
+export function parseSidra(rows: SidraRow[]): { valor: string; unidade: string; periodo: string } | null {
+  const [header, ...data] = rows
+  if (!header || data.length === 0) return null
+  const last = data[data.length - 1]
+  const periodKey = Object.keys(header).find((k) => /^D\dN$/.test(k) && /m[eê]s|ano|trimestre/i.test(header[k])) ?? 'D3N'
+  const valor = last.V
+  if (!valor || valor === '...' || valor === '-') return null
+  return { valor, unidade: last.MN ?? '', periodo: last[periodKey] ?? '' }
+}
 
 export async function collectIbge(): Promise<SourceResult> {
   const source_id = 'ibge-sidra'
   const items: PautaItem[] = []
   try {
     for (const q of IBGE_QUERIES) {
-      const url = `https://servicodados.ibge.gov.br/api/v3/agregados/${q.agregado}/periodos/${q.periodos}/variaveis/${q.variavel}?localidades=N1[all]`
-      const body = (await getJson(url)) as { variavel?: string; unidade?: string; resultados?: { series?: { serie?: Record<string, string> }[] }[] }[]
-      const v = body[0]
-      const serie = v?.resultados?.[0]?.series?.[0]?.serie
-      if (!serie) continue
-      const periodos = Object.keys(serie).sort()
-      const last = periodos[periodos.length - 1]
+      const url = `https://apisidra.ibge.gov.br/values/t/${q.tabela}/n1/all/v/${q.variavel}/p/last%201`
+      const rows = (await getJson(url)) as SidraRow[]
+      const r = parseSidra(rows)
+      if (!r) continue
       items.push({
         source_id,
-        external_id: `${q.id}:${last}`,
+        external_id: `${q.id}:${r.periodo}`,
         kind: 'dado',
-        title: `${q.nome}: ${serie[last]} ${v.unidade ?? ''} (${last})`.trim(),
+        title: `${q.nome}: ${r.valor} ${r.unidade} (${r.periodo})`.replace(/\s+/g, ' ').trim(),
         url,
-        summary: `${v.variavel ?? q.nome}. Fonte: IBGE (SIDRA, tabela ${q.agregado}).`,
+        summary: `${q.nome}. Fonte: IBGE (SIDRA, tabela ${q.tabela}).`,
         published_at: null,
-        payload: { query: q, serie },
+        payload: { query: q, row: rows[rows.length - 1] },
+      })
+    }
+    return { source_id, ok: true, items }
+  } catch (e) {
+    return { source_id, ok: false, items, error: String(e) }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Eurostat — API de disseminação (JSON-stat). Produção na construção (sts_copr_m), UE-27, índice 2021=100, ajustado sazonalmente.
+// Licença: reuso permitido com atribuição ("Fonte: Eurostat"). Dataset/filtros a confirmar no probe.
+// ---------------------------------------------------------------------------
+interface JsonStat { value?: Record<string, number> | (number | null)[]; dimension?: { time?: { category?: { index?: Record<string, number> | string[] } } } }
+
+/** Série temporal de uma consulta JSON-stat já filtrada para uma única série: [{periodo, valor}] em ordem cronológica. */
+export function parseJsonStatSeries(js: JsonStat): { periodo: string; valor: number }[] {
+  const idx = js.dimension?.time?.category?.index
+  if (!idx || !js.value) return []
+  const entries: [string, number][] = Array.isArray(idx) ? idx.map((p, i) => [p, i]) : Object.entries(idx)
+  const get = (i: number) => (Array.isArray(js.value) ? js.value[i] : (js.value as Record<string, number>)[String(i)])
+  return entries
+    .map(([periodo, i]) => ({ periodo, valor: get(i) }))
+    .filter((x): x is { periodo: string; valor: number } => typeof x.valor === 'number')
+    .sort((a, b) => a.periodo.localeCompare(b.periodo))
+}
+
+export async function collectEurostat(): Promise<SourceResult> {
+  const source_id = 'eurostat-produ-o-na-constru-o'
+  const items: PautaItem[] = []
+  try {
+    const url = 'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_copr_m?format=JSON&lang=EN&geo=EU27_2020&nace_r2=F&s_adj=SCA&unit=I21&indic_bt=PRD&lastTimePeriod=3'
+    const serie = parseJsonStatSeries((await getJson(url)) as JsonStat)
+    const last = serie[serie.length - 1]
+    if (last) {
+      const prev = serie[serie.length - 2]
+      const var_ = prev ? ((last.valor / prev.valor - 1) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) : null
+      items.push({
+        source_id,
+        external_id: `sts_copr_m:${last.periodo}`,
+        kind: 'dado',
+        title: `União Europeia — produção na construção: índice ${last.valor.toLocaleString('pt-BR')} (2021=100, ${last.periodo})${var_ ? `, ${var_}% sobre o mês anterior` : ''}`,
+        url,
+        summary: 'Produção na construção, UE-27, ajustada sazonalmente. Fonte: Eurostat (sts_copr_m).',
+        published_at: null,
+        payload: { serie },
       })
     }
     return { source_id, ok: true, items }
@@ -222,6 +278,7 @@ export const COLLECTORS: Record<string, () => Promise<SourceResult>> = {
   'bcb-sgs': collectBcb,
   pncp: () => collectPncp(),
   'ibge-sidra': collectIbge,
+  eurostat: collectEurostat,
   worldbank: collectWorldBank,
 }
 
