@@ -70,3 +70,11 @@ test('buildCarousel segue o formato do template', () => {
   assert.equal(c.slides[c.slides.length - 1].tipo, 'fonte')
   assert.equal(c.manchete, good.title)
 })
+
+test('nota curta com atribuição passa sem fonte primária; nota longa ou sem atribuição não', () => {
+  const base: Article = { title: 'Mirante em aterro no Japão', lede: 'Cone laranja vira mirante.', body_md: 'Segundo a Dezeen, o projeto fica numa ilha do Japão.', category: 'Tecnologia', facts: ['Mirante em cone laranja em complexo de reciclagem no Japão'], sources: [{ name: 'Dezeen', url: 'https://www.dezeen.com/x', primary: false }], kind: 'nota' }
+  assert.equal(checkArticle({ article: base, sourceTexts: ['Cone laranja gigante serve de mirante em complexo de reciclagem na ilha de Shikoku'] }).ok, true)
+  assert.equal(checkArticle({ article: { ...base, body_md: 'O projeto fica numa ilha do Japão.' }, sourceTexts: [] }).issues.some((i) => i.code === 'sem_atribuicao'), true)
+  assert.equal(checkArticle({ article: { ...base, body_md: 'Segundo a Dezeen, ' + 'palavra '.repeat(170) }, sourceTexts: [] }).issues.some((i) => i.code === 'nota_longa'), true)
+  assert.equal(checkArticle({ article: { ...base, kind: 'dados' }, sourceTexts: [] }).issues.some((i) => i.code === 'sem_fonte_primaria'), true)
+})

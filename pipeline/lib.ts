@@ -9,6 +9,8 @@ export interface Article {
   category: string
   facts: string[]
   sources: ArticleSource[]
+  /** 'nota': texto curto (≤ 160 palavras) a partir de um veículo, com atribuição e link; dispensa fonte primária. */
+  kind?: 'dados' | 'nota'
   highlight?: { value: string; caption: string; source: string }
   impact?: string
 }
@@ -94,6 +96,12 @@ export function checkArticle({ article, sourceTexts, maxOverlap = 0.2 }: CheckIn
   if (!article.title.trim()) add('erro', 'titulo_vazio', 'Título vazio.')
   if (article.title.length > 120) add('aviso', 'titulo_longo', 'Título com mais de 120 caracteres.')
   if (article.sources.length < 1) add('erro', 'sem_fonte', 'Nenhuma fonte registrada.')
+  else if (article.kind === 'nota') {
+    const words = text.split(/\s+/).filter(Boolean).length
+    if (words > 160) add('erro', 'nota_longa', `Nota com ${words} palavras (limite 160): vire matéria com fonte primária.`)
+    if (!/\b(com informações d[aeo]s?|segundo)\b/i.test(article.body_md)) add('erro', 'sem_atribuicao', 'Nota precisa citar a fonte no texto ("Com informações de…" ou "Segundo…").')
+    if (!article.sources.every((s) => /^https?:\/\//.test(s.url))) add('erro', 'sem_link', 'Nota precisa de link para a fonte.')
+  }
   else if (!article.sources.some((s) => s.primary)) add('erro', 'sem_fonte_primaria', 'Nenhuma fonte primária (dado oficial, ato, release).')
   if (article.facts.length < 1) add('erro', 'sem_fatos', 'Nenhum fato estruturado.')
 
