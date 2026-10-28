@@ -18,7 +18,7 @@ export default async function Home() {
         </div>
         <select className="select" aria-label="Categoria" defaultValue="todas">
           <option value="todas">Todas as categorias</option>
-          <option>Mercado</option><option>Infraestrutura</option><option>Materiais</option><option>Crédito</option><option>Segurança</option><option>Tecnologia</option>
+          <option>Mercado</option><option>Infraestrutura</option><option>Saneamento</option><option>Materiais</option><option>Crédito</option><option>Segurança</option><option>Tecnologia</option>
         </select>
       </div>
       <section className="insights" aria-label="Destaques">
