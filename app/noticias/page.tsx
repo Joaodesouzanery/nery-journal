@@ -4,14 +4,18 @@ import { NewsCard } from '@/components/Cards'
 import Newsletter from '@/components/Newsletter'
 import AdSlot from '@/components/AdSlot'
 import Link from 'next/link'
+import Radar from '@/components/Radar'
+import { getRadar } from '@/lib/data'
 
 export const revalidate = 300
 export const metadata = { title: 'Últimas notícias' }
 
 export default async function Noticias() {
-  const [items, indicadores, lics] = await Promise.all([getArticles(40), getIndicadores(), getLicitacoes({ days: 7, limit: 100 })])
+  const [items, indicadores, lics, radar] = await Promise.all([getArticles(40), getIndicadores(), getLicitacoes({ days: 7, limit: 100 }), getRadar(60)])
+  const onlyExamples = items.every((a) => a.is_placeholder)
   const topLics = [...lics].sort((a, b) => (b.valor_estimado ?? 0) - (a.valor_estimado ?? 0)).slice(0, 5)
-  const [featured, ...rest] = items
+  const real = onlyExamples && radar.length > 0 ? [] : items
+  const [featured, ...rest] = real
   return (
     <div className="wrap">
       <h1 className="h1" id="busca">Últimas notícias</h1>
@@ -28,9 +32,11 @@ export default async function Noticias() {
           <Newsletter variant="box" />
         </section>
       )}
+      {!featured && <div style={{ maxWidth: 520, margin: '8px 0 24px' }}><Newsletter variant="box" /></div>}
       <div className="layout">
         <section className="cards" aria-label="Notícias">
           {rest.map((a) => <NewsCard key={a.slug} a={a} />)}
+          {radar.length > 0 && <div style={{ gridColumn: '1 / -1' }}><Radar items={radar} /></div>}
         </section>
         <aside className="side">
           <AdSlot slot="mpu" />

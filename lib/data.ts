@@ -94,6 +94,38 @@ export async function getIndicadores(): Promise<Indicador[]> {
   }
 }
 
+export interface RadarItem { id: string; title: string; url: string; snippet: string | null; published_at: string | null; source: string; kind: string; lang: 'pt' | 'en' }
+
+const EN_HOSTS = /\.(co\.uk|com\.au|co\.za)\b|constructiondive|enr\.com|dezeen|construction\.com|constructionexec|equipmentworld|smartcitiesdive|highways\.today|globalconstructionreview|bdcnetwork|newcivilengineer|constructionnews|constructionenquirer|theconstructionindex|buildaustralia/
+
+/** Radar do setor: manchetes dos feeds das fontes, com link para o original. Só título, link e trecho curto; nunca o texto da matéria. */
+export async function getRadar(limit = 60): Promise<RadarItem[]> {
+  const db = client()
+  if (!db) return []
+  try {
+    const [{ data: items }, { data: sources }] = await Promise.all([
+      db.from('nj_pauta_items').select('id,source_id,title,url,summary,published_at,created_at').eq('kind', 'noticia')
+        .order('published_at', { ascending: false, nullsFirst: false }).limit(limit * 3),
+      db.from('nj_sources').select('id,name,kind'),
+    ])
+    const names = new Map((sources ?? []).map((x: { id: string; name: string; kind: string }) => [x.id, x]))
+    const perSource = new Map<string, number>()
+    const out: RadarItem[] = []
+    for (const r of (items ?? []) as { id: string; source_id: string; title: string; url: string | null; summary: string | null; published_at: string | null }[]) {
+      if (!r.url) continue
+      const n = perSource.get(r.source_id) ?? 0
+      if (n >= 6) continue // nenhuma fonte domina o radar
+      perSource.set(r.source_id, n + 1)
+      const src = names.get(r.source_id)
+      out.push({ id: r.id, title: r.title, url: r.url, snippet: r.summary, published_at: r.published_at, source: src?.name ?? r.source_id, kind: src?.kind ?? 'veiculo', lang: EN_HOSTS.test(r.url) ? 'en' : 'pt' })
+      if (out.length >= limit) break
+    }
+    return out
+  } catch {
+    return []
+  }
+}
+
 export async function getArticle(slug: string): Promise<ArticleRow | null> {
   const all = await getArticles(100)
   return all.find((a) => a.slug === slug) ?? null

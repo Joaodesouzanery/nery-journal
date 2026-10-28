@@ -1,11 +1,13 @@
 import { getArticles } from '@/lib/data'
 import { CoverCard } from '@/components/Cards'
 import Link from 'next/link'
+import Radar from '@/components/Radar'
+import { getRadar } from '@/lib/data'
 
 export const revalidate = 300
 
 export default async function Home() {
-  const items = await getArticles(30)
+  const [items, radar] = await Promise.all([getArticles(30), getRadar(12)])
   const [a, b, c, d, ...rest] = items
   return (
     <div className="wrap">
@@ -30,6 +32,7 @@ export default async function Home() {
           {rest.slice(0, 6).map((x) => <CoverCard key={x.slug} a={x} className="" />)}
         </section>
       )}
+      <Radar items={radar} title="Radar do setor" />
       <div className="more"><Link className="btn" href="/noticias">Visualizar tudo</Link></div>
     </div>
   )
