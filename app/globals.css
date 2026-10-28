@@ -187,3 +187,6 @@ a { color: inherit; }
 .radar-meta .lang { margin-left: 6px; border: 1px solid var(--line); padding: 0 4px; font-size: 10px; }
 .radar li a { color: #111; text-decoration: none; font-size: 17px; line-height: 1.3; font-weight: 500; }
 .radar li a:hover { text-decoration: underline; }
+
+.coverart { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+.cover .in { position: relative; }
