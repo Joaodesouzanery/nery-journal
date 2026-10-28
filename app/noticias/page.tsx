@@ -10,10 +10,15 @@ import { getRadar } from '@/lib/data'
 export const revalidate = 300
 export const metadata = { title: 'Últimas notícias' }
 
-export default async function Noticias() {
+export default async function Noticias({ searchParams }: { searchParams: Promise<{ tema?: string; idioma?: string }> }) {
+  const { tema, idioma } = await searchParams
   const [items, indicadores, lics, radar] = await Promise.all([getArticles(40), getIndicadores(), getLicitacoes({ days: 7, limit: 100 }), getRadar(60)])
   const onlyExamples = items.every((a) => a.is_placeholder)
   const topLics = [...lics].sort((a, b) => (b.valor_estimado ?? 0) - (a.valor_estimado ?? 0)).slice(0, 5)
+  const radarAll = radar
+  const radarShown = radarAll.filter((i) => (!tema || i.tema === tema) && (!idioma || i.lang === idioma))
+  const temaCount = new Map<string, number>()
+  for (const i of radarAll) temaCount.set(i.tema, (temaCount.get(i.tema) ?? 0) + 1)
   const real = onlyExamples && radar.length > 0 ? [] : items
   const [featured, ...rest] = real
   return (
@@ -36,7 +41,17 @@ export default async function Noticias() {
       <div className="layout">
         <section className="cards" aria-label="Notícias">
           {rest.map((a) => <NewsCard key={a.slug} a={a} />)}
-          {radar.length > 0 && <div style={{ gridColumn: '1 / -1' }}><Radar items={radar} /></div>}
+          {radarAll.length > 0 && (
+            <div style={{ gridColumn: '1 / -1' }}>
+              <div className="ufs" style={{ margin: '0 0 16px' }} aria-label="Filtrar radar">
+                <Link className={`uf ${!tema && !idioma ? 'on' : ''}`} href="/noticias">Tudo ({radarAll.length})</Link>
+                {[...temaCount.entries()].sort((a, b) => b[1] - a[1]).map(([t, n]) => <Link key={t} className={`uf ${tema === t ? 'on' : ''}`} href={`/noticias?tema=${encodeURIComponent(t)}`}>{t} ({n})</Link>)}
+                <Link className={`uf ${idioma === 'en' ? 'on' : ''}`} href="/noticias?idioma=en">Internacional (EN)</Link>
+                <Link className={`uf ${idioma === 'pt' ? 'on' : ''}`} href="/noticias?idioma=pt">Brasil (PT)</Link>
+              </div>
+              <Radar items={radarShown} />
+            </div>
+          )}
         </section>
         <aside className="side">
           <AdSlot slot="mpu" />

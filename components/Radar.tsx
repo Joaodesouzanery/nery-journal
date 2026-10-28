@@ -11,7 +11,7 @@ export default function Radar({ items, title = 'Radar do setor' }: { items: Rada
       <ul>
         {items.map((i) => (
           <li key={i.id}>
-            <div className="radar-meta"><b>{i.source}</b>{i.lang === 'en' ? <span className="lang">EN</span> : null} · {fmtDate(i.published_at)}</div>
+            <div className="radar-meta"><b>{i.source}</b> · {i.tema}{i.lang === 'en' ? <span className="lang">EN</span> : null} · {fmtDate(i.published_at)}</div>
             <a href={i.url} target="_blank" rel="noopener noreferrer nofollow">{i.title}</a>
           </li>
         ))}

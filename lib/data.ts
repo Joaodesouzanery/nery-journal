@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
+import { classificarTema } from './radar'
+import type { Tema } from './radar'
 
 export interface ArticleRow {
   slug: string
@@ -94,7 +96,7 @@ export async function getIndicadores(): Promise<Indicador[]> {
   }
 }
 
-export interface RadarItem { id: string; title: string; url: string; snippet: string | null; published_at: string | null; source: string; kind: string; lang: 'pt' | 'en' }
+export interface RadarItem { id: string; title: string; url: string; snippet: string | null; published_at: string | null; source: string; kind: string; lang: 'pt' | 'en'; tema: Tema }
 
 const EN_HOSTS = /\.(co\.uk|com\.au|co\.za)\b|constructiondive|enr\.com|dezeen|construction\.com|constructionexec|equipmentworld|smartcitiesdive|highways\.today|globalconstructionreview|bdcnetwork|newcivilengineer|constructionnews|constructionenquirer|theconstructionindex|buildaustralia/
 
@@ -117,7 +119,7 @@ export async function getRadar(limit = 60): Promise<RadarItem[]> {
       if (n >= 6) continue // nenhuma fonte domina o radar
       perSource.set(r.source_id, n + 1)
       const src = names.get(r.source_id)
-      out.push({ id: r.id, title: r.title, url: r.url, snippet: r.summary, published_at: r.published_at, source: src?.name ?? r.source_id, kind: src?.kind ?? 'veiculo', lang: EN_HOSTS.test(r.url) ? 'en' : 'pt' })
+      out.push({ id: r.id, title: r.title, url: r.url, snippet: r.summary, published_at: r.published_at, source: src?.name ?? r.source_id, kind: src?.kind ?? 'veiculo', lang: EN_HOSTS.test(r.url) ? 'en' : 'pt', tema: classificarTema(r.title) })
       if (out.length >= limit) break
     }
     return out

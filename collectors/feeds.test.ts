@@ -1,7 +1,7 @@
 // XML/HTML SINTÉTICOS escritos para o teste; não são respostas reais de nenhum veículo.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFeed, discoverFeeds, robotsAllows, parseNewsSitemap, parseItems, sitemapsFromRobots } from './feeds.ts'
+import { parseFeed, discoverFeeds, robotsAllows, parseNewsSitemap, parseItems, sitemapsFromRobots, anchorFeeds } from './feeds.ts'
 
 test('parseFeed lê RSS 2.0 e limita o trecho a 200 caracteres sem HTML', () => {
   const xml = `<?xml version="1.0"?><rss version="2.0"><channel><item><title>Obra X</title><link>https://ex.com/a</link><pubDate>Mon, 26 Oct 2026 10:00:00 GMT</pubDate><description><![CDATA[<p>${'palavra '.repeat(60)}</p>]]></description></item></channel></rss>`
@@ -63,4 +63,9 @@ test('parseNewsSitemap lê título e data do sitemap de notícias e ignora sitem
 
 test('sitemapsFromRobots extrai as linhas Sitemap:', () => {
   assert.deepEqual(sitemapsFromRobots('User-agent: *\nDisallow: /x\nSitemap: https://ex.com/s.xml\nsitemap: https://ex.com/news.xml'), ['https://ex.com/s.xml', 'https://ex.com/news.xml'])
+})
+
+test('anchorFeeds acha links de feed no corpo da página', () => {
+  const html = '<a href="/rss">RSS</a> <a href="/noticias/feed/">Feed</a> <a href="/sobre">Sobre</a> <a href="https://ex.com/pt-br/noticias/RSS">gov</a>'
+  assert.deepEqual(anchorFeeds(html, 'https://ex.com/x'), ['https://ex.com/rss', 'https://ex.com/noticias/feed/', 'https://ex.com/pt-br/noticias/RSS'])
 })

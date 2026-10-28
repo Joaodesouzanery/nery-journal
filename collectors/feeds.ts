@@ -52,6 +52,17 @@ export function discoverFeeds(html: string, baseUrl: string): string[] {
   return [...found]
 }
 
+/** Links do corpo da página que parecem apontar para um feed (/rss, /feed, /atom, .xml de feed), absolutizados. */
+export function anchorFeeds(html: string, baseUrl: string): string[] {
+  const found = new Set<string>()
+  for (const m of html.matchAll(/<a\b[^>]*\bhref=["']([^"']+)["']/gi)) {
+    const href = m[1]
+    if (!/(^|\/)(rss|feed|atom)(\.xml|\/)?(\?[^#]*)?$/i.test(href.split('#')[0]) && !/\/RSS$/.test(href)) continue
+    try { found.add(new URL(href, baseUrl).toString()) } catch { /* ignora */ }
+  }
+  return [...found]
+}
+
 /** robots.txt simplificado: vale o grupo do nosso agente ou, na falta dele, o grupo "*". */
 export function robotsAllows(robots: string, path: string, agent = 'nery-journal-collector'): boolean {
   const groups: { agents: string[]; rules: { allow: boolean; p: string }[] }[] = []

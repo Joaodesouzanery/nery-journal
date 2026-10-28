@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --test pipeline/*.test.ts collectors/*.test.ts",
+    "test": "node --test pipeline/*.test.ts collectors/*.test.ts lib/*.test.ts",
     "nj:probe": "node scripts/nj-probe.mjs",
     "nj:collect": "node scripts/nj-collect.mjs",
     "nj:licitacoes": "node scripts/nj-licitacoes.mjs",
