@@ -13,6 +13,8 @@ export interface ArticleRow {
   published_at: string | null
   is_placeholder: boolean
   ai_assisted: boolean
+  photo_url?: string | null
+  cover?: { numero: string; legenda: string } | null
 }
 
 // ---------------------------------------------------------------------------
@@ -58,7 +60,7 @@ function client() {
   return url && key ? createClient(url, key, { auth: { persistSession: false } }) : null
 }
 
-const COLS = 'slug,sector,category,title,lede,body_md,sources,published_at,is_placeholder,ai_assisted'
+const COLS = 'slug,sector,category,title,lede,body_md,sources,published_at,is_placeholder,ai_assisted,photo_id,cover'
 
 export async function getArticles(limit = 30): Promise<ArticleRow[]> {
   const db = client()
@@ -67,7 +69,15 @@ export async function getArticles(limit = 30): Promise<ArticleRow[]> {
     const { data, error } = await db.from('nj_articles').select(COLS).eq('sector', 'construcao')
       .order('published_at', { ascending: false }).limit(limit)
     if (error || !data || data.length === 0) return PLACEHOLDERS
-    return data as ArticleRow[]
+    const rows = data as (ArticleRow & { photo_id?: string | null })[]
+    // Fotos livres (CC0/domínio público) ligadas à matéria; sem foto, o site usa a ilustração do tema.
+    const ids = [...new Set(rows.map((r) => r.photo_id).filter((x): x is string => !!x))]
+    if (ids.length) {
+      const { data: photos } = await db.from('nj_photos').select('id,url').in('id', ids)
+      const byId = new Map((photos ?? []).map((p: { id: string; url: string }) => [p.id, p.url]))
+      for (const r of rows) r.photo_url = r.photo_id ? byId.get(r.photo_id) ?? null : null
+    }
+    return rows
   } catch {
     return PLACEHOLDERS
   }

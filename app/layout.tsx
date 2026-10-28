@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@300;400;500;600;800&display=swap" />
       </head>
       <body>
-        {!indexable && <div className="notice"><b>Em construção.</b> Conteúdo de <b>exemplo</b> para validar o layout; nada aqui é notícia real.</div>}
+        {!indexable && <div className="notice"><b>Site em construção.</b> Versão de testes: as matérias estão sendo publicadas aos poucos.</div>}
         <Header />
         <TopAd />
         <main>{children}</main>

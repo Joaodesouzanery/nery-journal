@@ -34,6 +34,10 @@ export default async function Article({ params }: Props) {
       )}
       <div style={{ color: 'var(--muted)', fontSize: 14 }}>{a.category} • {fmtDate(a.published_at)}</div>
       <h1>{a.title}</h1>
+      {a.photo_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={a.photo_url} alt="" style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', borderRadius: 8, margin: '8px 0 20px' }} />
+      )}
       <p className="lede">{a.lede}</p>
       {a.is_placeholder && <div className="disclosure"><b>EXEMPLO.</b> Conteúdo fictício para validar o layout. Não é notícia.</div>}
       <div className="body">{renderBody(a.body_md)}</div>

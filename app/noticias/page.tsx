@@ -1,11 +1,10 @@
 import { getArticles, getIndicadores, fmtDate, INDICADORES_PLACEHOLDER, LICITACOES_PLACEHOLDER } from '@/lib/data'
 import { getLicitacoes, brl } from '@/lib/licitacoes'
-import { NewsCard } from '@/components/Cards'
+import { NewsCard, Visual } from '@/components/Cards'
 import Newsletter from '@/components/Newsletter'
 import AdSlot from '@/components/AdSlot'
 import Link from 'next/link'
 import Radar from '@/components/Radar'
-import CoverArt from '@/components/CoverArt'
 import { getRadar } from '@/lib/data'
 
 export const revalidate = 300
@@ -28,7 +27,7 @@ export default async function Noticias({ searchParams }: { searchParams: Promise
       {featured && (
         <section className="feature">
           <Link href={`/construcao/${featured.slug}`} className="cover img cat-mercado" style={{ aspectRatio: '16/10', minHeight: 200 }}>
-            <CoverArt category={featured.category} />
+            <Visual a={featured} />
             {featured.is_placeholder && <span className="badge">EXEMPLO</span>}
           </Link>
           <div>

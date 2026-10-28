@@ -1,5 +1,13 @@
 import Link from 'next/link'
 import CoverArt from './CoverArt'
+
+/** Foto livre da matéria ou, na falta dela, a ilustração do tema. */
+export function Visual({ a }: { a: ArticleRow }) {
+  return a.photo_url
+    // eslint-disable-next-line @next/next/no-img-element
+    ? <img className="coverimg" src={a.photo_url} alt="" loading="lazy" decoding="async" />
+    : <CoverArt category={a.category} />
+}
 import { fmtDate } from '@/lib/data'
 import type { ArticleRow } from '@/lib/data'
 
@@ -10,7 +18,7 @@ const href = (a: ArticleRow) => `/construcao/${a.slug}`
 export function CoverCard({ a, className = '' }: { a: ArticleRow; className?: string }) {
   return (
     <Link href={href(a)} className={`cover ${catClass(a.category)} ${className}`}>
-      <CoverArt category={a.category} />
+      <Visual a={a} />
       {a.is_placeholder && <span className="badge">EXEMPLO</span>}
       <div className="in">
         <div className="meta"><u>{a.category}</u> • {fmtDate(a.published_at)}</div>
@@ -25,7 +33,7 @@ export function NewsCard({ a }: { a: ArticleRow }) {
   return (
     <Link href={href(a)} className="card">
       <div className={`cover img ${catClass(a.category)}`} style={{ borderRadius: 0 }}>
-        <CoverArt category={a.category} />
+        <Visual a={a} />
         {a.is_placeholder && <span className="badge">EXEMPLO</span>}
       </div>
       <div className="body">

@@ -13,6 +13,7 @@
     "nj:collect": "node scripts/nj-collect.mjs",
     "nj:licitacoes": "node scripts/nj-licitacoes.mjs",
     "nj:feeds": "node scripts/nj-feeds.mjs",
+    "nj:photos": "node scripts/nj-photos.mjs",
     "nj:discover": "node scripts/nj-discover-feeds.mjs"
   },
   "dependencies": {

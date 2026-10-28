@@ -12,3 +12,6 @@ Tarefa:
 2. Para cada grupo, diga se existe **fonte primária** (dado oficial, edital do PNCP, ato, release da própria entidade). Manchete de veículo NÃO é fonte primária: marque como "radar" e indique qual dado, edital ou release o editor deve buscar.
 3. Classifique o tema (Mercado, Infraestrutura, Saneamento, Materiais, Crédito, Segurança, Tecnologia) e dê nota de 1 a 5 de relevância para construtoras, engenheiros e fornecedores (foco: licitações e saneamento).
 Saída: lista ordenada (máx. 5) com tema, nota, fonte primária (URL) ou "radar sem fonte primária". Nunca escreva texto de matéria.
+
+## Rodada diária (07h, 12h, 18h Brasília)
+Escolha até **6 pautas por rodada** para o Brasil todo: ~2 de dados/licitações (fonte oficial), ~2 de saneamento, ~2 de curiosidade internacional (construção, engenharia e saneamento) que sirvam a qualquer leitor, como as curiosidades do Not Journal. Evite repetir tema do dia. Notícia de veículo (inclusive em inglês) é só **base de pauta**: informe quais fontes cobrem o fato; sem fonte primária nem segunda fonte independente, não avance.
