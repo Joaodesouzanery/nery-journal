@@ -62,7 +62,7 @@ const fmtBRL = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', cur
 export const BCB_SERIES = [
   { code: 432, nome: 'Meta da taxa Selic', unidade: '% a.a.' },
   { code: 433, nome: 'IPCA (variação mensal)', unidade: '%' },
-  { code: 192, nome: 'INCC-M (variação mensal)', unidade: '%' },
+  { code: 192, nome: 'BCB série 192 (índice de custo da construção, variação mensal)', unidade: '%' },
 ]
 
 export async function collectBcb(): Promise<SourceResult> {
