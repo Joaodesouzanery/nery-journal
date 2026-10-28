@@ -73,10 +73,13 @@ export function robotsAllows(robots: string, path: string, agent = 'nery-journal
   const a = agent.toLowerCase()
   const g = groups.find((x) => x.agents.some((n) => n !== '*' && a.includes(n))) ?? groups.find((x) => x.agents.includes('*'))
   if (!g) return true
+  // Casamento por padrão (RFC 9309): "*" = qualquer sequência, "$" no fim = fim do caminho; a regra mais longa vence e, em empate, Allow.
   let best: { allow: boolean; len: number } | null = null
   for (const r of g.rules) {
-    const prefix = r.p.replace(/\*.*$/, '').replace(/\$$/, '')
-    if (path.startsWith(prefix) && (!best || prefix.length >= best.len)) best = { allow: r.allow, len: prefix.length }
+    const anchored = r.p.endsWith('$')
+    const src = (anchored ? r.p.slice(0, -1) : r.p).split('*').map((x) => x.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')
+    if (!new RegExp('^' + src + (anchored ? '$' : '')).test(path)) continue
+    if (!best || r.p.length > best.len || (r.p.length === best.len && r.allow)) best = { allow: r.allow, len: r.p.length }
   }
   return best ? best.allow : true
 }

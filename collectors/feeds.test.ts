@@ -38,3 +38,14 @@ test('parseFeed devolve vazio para HTML e XML inválido, sem lançar', () => {
   assert.deepEqual(parseFeed('<rss><channel><item><title>x</item>'), [])
   assert.deepEqual(parseFeed(''), [])
 })
+
+test('robotsAllows trata curingas: regra /*?s= não bloqueia o site todo', () => {
+  const r = 'User-agent: *\nDisallow: /*?s=\nDisallow: /wp-admin/\nDisallow: /*.pdf$\nAllow: /wp-admin/admin-ajax.php\n'
+  assert.equal(robotsAllows(r, '/'), true)
+  assert.equal(robotsAllows(r, '/feed/'), true)
+  assert.equal(robotsAllows(r, '/busca?s=obra'), false)
+  assert.equal(robotsAllows(r, '/docs/a.pdf'), false)
+  assert.equal(robotsAllows(r, '/docs/a.pdf?x=1'), true)
+  assert.equal(robotsAllows(r, '/wp-admin/x'), false)
+  assert.equal(robotsAllows(r, '/wp-admin/admin-ajax.php'), true)
+})
