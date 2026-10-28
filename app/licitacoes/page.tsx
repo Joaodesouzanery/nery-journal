@@ -2,14 +2,16 @@ import Link from 'next/link'
 import { getLicitacoes, brl } from '@/lib/licitacoes'
 import { UFS } from '@/lib/constants'
 import { fmtDate } from '@/lib/data'
+import { ehSaneamento } from '@/lib/radar'
 
 export const revalidate = 600
 export const metadata = { title: 'Licitações de obras' }
 
-export default async function Licitacoes({ searchParams }: { searchParams: Promise<{ uf?: string }> }) {
-  const { uf: raw } = await searchParams
+export default async function Licitacoes({ searchParams }: { searchParams: Promise<{ uf?: string; tema?: string }> }) {
+  const { uf: raw, tema } = await searchParams
   const uf = (UFS as readonly string[]).includes(raw ?? '') ? raw : undefined
-  const all = await getLicitacoes({ days: 7 })
+  const base = await getLicitacoes({ days: 7 })
+  const all = tema === 'saneamento' ? base.filter((r) => ehSaneamento(r.objeto)) : base
   const rows = uf ? all.filter((r) => r.uf === uf) : all
   const count: Record<string, number> = {}
   for (const r of all) if (r.uf) count[r.uf] = (count[r.uf] ?? 0) + 1
@@ -18,8 +20,9 @@ export default async function Licitacoes({ searchParams }: { searchParams: Promi
       <h1 className="h1">Licitações de obras</h1>
       <p style={{ maxWidth: 720 }}>Obras e serviços de engenharia publicados nos últimos 7 dias no PNCP, por estado. O PNCP é a fonte oficial: confira sempre o edital de origem. A cobertura pode ser incompleta em municípios pequenos.</p>
       <div className="ufs" style={{ margin: '16px 0' }}>
-        <Link className={`uf ${!uf ? 'on' : ''}`} href="/licitacoes">Todos ({all.length})</Link>
-        {UFS.filter((u) => count[u]).map((u) => <Link key={u} className={`uf ${uf === u ? 'on' : ''}`} href={`/licitacoes?uf=${u}`}>{u} ({count[u]})</Link>)}
+        <Link className={`uf ${tema !== 'saneamento' ? 'on' : ''}`} href="/licitacoes">Todas as obras ({base.length})</Link>
+        <Link className={`uf ${tema === 'saneamento' ? 'on' : ''}`} href="/licitacoes?tema=saneamento">Saneamento ({base.filter((r) => ehSaneamento(r.objeto)).length})</Link>
+        {UFS.filter((u) => count[u]).map((u) => <Link key={u} className={`uf ${uf === u ? 'on' : ''}`} href={`/licitacoes?uf=${u}${tema ? `&tema=${tema}` : ''}`}>{u} ({count[u]})</Link>)}
       </div>
       {rows.length === 0 ? (
         <div className="disclosure">Ainda não há licitações coletadas. A coleta diária começa quando as chaves forem configuradas.</div>

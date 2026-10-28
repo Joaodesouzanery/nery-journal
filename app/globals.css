@@ -6,6 +6,7 @@
   --soft: #f5f5f3;
   --accent: #3da9d6;       /* azul claro (CTA) */
   --accent-ink: #111111;
+  --accent-btn: #1a7aa8;     /* azul do botão: contraste 4,8:1 com texto branco (WCAG AA) */
   --dark: #0b0b0b;
   --max: 1280px;
   --radius: 8px;
@@ -36,7 +37,8 @@ a { color: inherit; }
 .nav a:hover { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; text-underline-offset: 6px; }
 .btn { display: inline-block; border: 1px solid #c9c9c9; border-radius: 6px; padding: 8px 16px; font-size: 14px; background: #fff; cursor: pointer; text-decoration: none; color: var(--ink); font-family: inherit; }
 .btn.solid { background: var(--ink); color: #fff; border-color: var(--ink); }
-.btn.accent { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.accent { background: var(--accent-btn); color: #fff; border-color: var(--accent-btn); font-weight: 600; }
+.btn.accent:hover { background: #156590; border-color: #156590; }
 
 /* Títulos */
 .h1 { font-weight: 300; font-size: 44px; line-height: 1.1; margin: 40px 0 10px; letter-spacing: -.01em; }

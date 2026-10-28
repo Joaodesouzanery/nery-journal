@@ -1,8 +1,12 @@
 // Tratamento editorial do radar: tema por palavras-chave no título (PT e EN). Função pura; não depende de rede.
-export const TEMAS = ['Licitações e contratos', 'Infraestrutura', 'Habitação e mercado', 'Materiais e custos', 'Tecnologia', 'Sustentabilidade', 'Regulação e segurança', 'Setor'] as const
+export const TEMAS = ['Saneamento', 'Licitações e contratos', 'Infraestrutura', 'Habitação e mercado', 'Materiais e custos', 'Tecnologia', 'Sustentabilidade', 'Regulação e segurança', 'Setor'] as const
 export type Tema = (typeof TEMAS)[number]
 
+export const RE_SANEAMENTO = /saneament|esgot|[aá]gua tratada|abastecimento de [aá]gua|adutora|elevat[oó]ria|\bETE\b|\bETA\b|sabesp|copasa|sanepar|aegea|ig[uú]a|brk ambiental|marco legal|ligac[oõ]es? de [aá]gua|\b(water|wastewater|sewer\w*|sewage|drinking water|desalination|stormwater|water utilit\w*|pipelines?)\b/i
+export const ehSaneamento = (t: string) => RE_SANEAMENTO.test(t)
+
 const REGRAS: [Tema, RegExp][] = [
+  ['Saneamento', RE_SANEAMENTO],
   ['Licitações e contratos', /licita|edital|concorr[eê]ncia|preg[aã]o|contrata[cç][aã]o|\b(tender|procurement|bidding|contract award|awarded)\b/i],
   ['Infraestrutura', /rodovia|ferrovia|porto|aeroporto|ponte|viaduto|saneamento|metr[oô]|obra p[uú]blica|\b(highway|bridge|rail(way)?|airport|tunnel|infrastructure|road|dam|port)\b/i],
   ['Habitação e mercado', /habita|imobili|incorpora|financiamento|cr[eé]dito|minha casa|lan[cç]amentos|\b(housing|mortgage|real estate|homebuild\w*|apartment)\b/i],
