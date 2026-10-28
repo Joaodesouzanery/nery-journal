@@ -24,7 +24,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm install --no-audit --no-fund
-      - run: npm run nj:collect -- ${{ inputs.source }}
+      - continue-on-error: true  # IBGE/Caixa não respondem aos IPs do GitHub; não derruba o resto
+        run: npm run nj:collect -- ${{ inputs.source }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

@@ -1,7 +1,7 @@
 // Lê os feeds RSS/Atom das fontes com feed_url e grava manchete + link + trecho curto em nj_pauta_items (kind 'noticia').
 // Radar de pauta: o texto da matéria nunca é guardado. Respeita robots.txt. Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 import { createClient } from '@supabase/supabase-js'
-import { parseFeed, robotsAllows } from '../collectors/feeds.ts'
+import { parseItems, robotsAllows } from '../collectors/feeds.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -19,7 +19,7 @@ for (const s of sources) {
     if (rb?.ok && !robotsAllows(await rb.text(), u.pathname)) { console.log(`[PULA] ${s.id}: robots.txt bloqueia`); continue }
     const res = await fetch(u, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(20000) })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const items = parseFeed(await res.text()).slice(0, 30).map((i) => ({
+    const items = parseItems(await res.text()).slice(0, 30).map((i) => ({
       source_id: s.id, external_id: i.link, kind: 'noticia', title: i.title, url: i.link, summary: i.snippet, published_at: i.published_at, payload: {},
     }))
     if (items.length) {

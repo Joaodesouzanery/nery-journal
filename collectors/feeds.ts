@@ -83,3 +83,33 @@ export function robotsAllows(robots: string, path: string, agent = 'nery-journal
   }
   return best ? best.allow : true
 }
+
+/**
+ * Sitemap de notícias (Google News): traz título, link e data no próprio XML, sem abrir páginas de matéria.
+ * Sitemaps comuns (sem <news:title>) não servem: devolvem vazio.
+ */
+export function parseNewsSitemap(xml: string): FeedItem[] {
+  if (!/<urlset\b/i.test(xml.slice(0, 2000)) || xml.length > 5_000_000) return []
+  let doc: Record<string, any>
+  try { doc = parser.parse(xml) as Record<string, any> } catch { return [] }
+  const out: FeedItem[] = []
+  for (const u of arr(doc?.urlset?.url) as any[]) {
+    const n = u['news:news']
+    const title = stripHtml(text(n?.['news:title']))
+    const link = text(u.loc).trim()
+    if (!title || !link) continue
+    out.push({ title, link, published_at: iso(text(n?.['news:publication_date']) || text(u.lastmod)), snippet: null })
+  }
+  return out
+}
+
+/** Lê um endereço como feed RSS/Atom e, se não for, como sitemap de notícias. */
+export function parseItems(xml: string): FeedItem[] {
+  const feed = parseFeed(xml)
+  return feed.length > 0 ? feed : parseNewsSitemap(xml)
+}
+
+/** Endereços "Sitemap:" declarados no robots.txt. */
+export function sitemapsFromRobots(robots: string): string[] {
+  return [...robots.matchAll(/^\s*sitemap\s*:\s*(\S+)/gim)].map((m) => m[1])
+}

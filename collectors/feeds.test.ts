@@ -1,7 +1,7 @@
 // XML/HTML SINTÉTICOS escritos para o teste; não são respostas reais de nenhum veículo.
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFeed, discoverFeeds, robotsAllows } from './feeds.ts'
+import { parseFeed, discoverFeeds, robotsAllows, parseNewsSitemap, parseItems, sitemapsFromRobots } from './feeds.ts'
 
 test('parseFeed lê RSS 2.0 e limita o trecho a 200 caracteres sem HTML', () => {
   const xml = `<?xml version="1.0"?><rss version="2.0"><channel><item><title>Obra X</title><link>https://ex.com/a</link><pubDate>Mon, 26 Oct 2026 10:00:00 GMT</pubDate><description><![CDATA[<p>${'palavra '.repeat(60)}</p>]]></description></item></channel></rss>`
@@ -48,4 +48,19 @@ test('robotsAllows trata curingas: regra /*?s= não bloqueia o site todo', () =>
   assert.equal(robotsAllows(r, '/docs/a.pdf?x=1'), true)
   assert.equal(robotsAllows(r, '/wp-admin/x'), false)
   assert.equal(robotsAllows(r, '/wp-admin/admin-ajax.php'), true)
+})
+
+test('parseNewsSitemap lê título e data do sitemap de notícias e ignora sitemap comum', () => {
+  const news = `<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"><url><loc>https://ex.com/a</loc><news:news><news:publication_date>2026-10-27T09:00:00Z</news:publication_date><news:title>Ponte nova</news:title></news:news></url></urlset>`
+  const items = parseNewsSitemap(news)
+  assert.equal(items.length, 1)
+  assert.equal(items[0].title, 'Ponte nova')
+  assert.equal(items[0].published_at, '2026-10-27T09:00:00.000Z')
+  const plain = `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://ex.com/a</loc></url></urlset>`
+  assert.deepEqual(parseNewsSitemap(plain), [])
+  assert.equal(parseItems(news).length, 1)
+})
+
+test('sitemapsFromRobots extrai as linhas Sitemap:', () => {
+  assert.deepEqual(sitemapsFromRobots('User-agent: *\nDisallow: /x\nSitemap: https://ex.com/s.xml\nsitemap: https://ex.com/news.xml'), ['https://ex.com/s.xml', 'https://ex.com/news.xml'])
 })

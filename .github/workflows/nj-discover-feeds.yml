@@ -1,6 +1,8 @@
 name: nj-discover-feeds
 # Descobre feeds RSS/Atom das fontes e grava o resultado em nj_source_checks (precisa dos Secrets do Supabase).
 on:
+  schedule:
+    - cron: '0 8 * * 1'  # toda segunda: procura feeds novos
   push:
     paths: ['.github/triggers/discover']  # dispara por push deste arquivo (a integração não consegue usar o botão Run)
   workflow_dispatch:
