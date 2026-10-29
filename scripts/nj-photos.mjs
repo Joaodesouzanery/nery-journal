@@ -1,7 +1,7 @@
 // Liga fotos reais de licença livre (CC0/domínio público, sem exigência de crédito) às matérias publicadas sem foto.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Fonte: Wikimedia Commons. Nunca usa fotos dos veículos.
 import { createClient } from '@supabase/supabase-js'
-import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo } from '../collectors/photos.ts'
+import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory } from '../collectors/photos.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -30,11 +30,11 @@ const ents = entsData ?? []
 for (const a of arts ?? []) {
   let chosen = null
   const br = isBrazilStory(a.sources ?? [])
-  const ent = (a.entity_id && ents.find((e) => e.id === a.entity_id)) || matchEntity(a.title, ents)
+  const ent = (a.entity_id && ents.find((e) => e.id === a.entity_id)) || matchEntity(`${a.title} ${(a.sources ?? []).map((x) => x.name).join(' ')}`, ents)
   // 1) foto livre da própria entidade; 2) logo da entidade
   if (ent) {
     try {
-      const found = (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && p.text.includes(ent.name.toLowerCase().split(' ')[0]))
+      const found = isAbstractStory(a.title) ? [] : (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && p.text.includes(ent.name.toLowerCase().split(' ')[0]) && isSectorPhoto(p))
       if (found.length) chosen = { ...found[0], q: ent.name, kind: 'photo' }
     } catch (e) { console.log(`  entidade "${ent.name}": ${e}`) }
     if (!chosen) {
@@ -49,9 +49,10 @@ for (const a of arts ?? []) {
   if (!chosen) for (const [i, q] of tiers.entries()) {
     try {
       let found = (await searchCommons(q)).filter((p) => !taken.has(p.origin_url))
+      found = found.filter(isSectorPhoto)
       if (br) found = found.filter((p) => !isForeignPhoto(p))
       const last = i === tiers.length - 1
-      const best = bestPhoto(q.replace(/ Brazil$/, ''), found, last ? 0 : 1)
+      const best = bestPhoto(q.replace(/ Brazil$/, ''), found, last ? 1 : 2)
       if (best) { chosen = { ...best, q, kind: 'photo' }; break }
     } catch (e) { console.log(`  busca "${q}": ${e}`) }
     await new Promise((r) => setTimeout(r, 1200))

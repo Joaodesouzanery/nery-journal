@@ -4,7 +4,7 @@
 export interface CommonsPhoto { url: string; origin_url: string; license: string; credit: string; width: number; height: number; text: string }
 
 const FREE = /^(cc0|cc[- ]?zero|public domain|pd[- ]|pdm|no restrictions|copyrighted free use)/i
-const BANNED = /\b(logo|map|mapa|diagram|flag|bandeira|poster|portrait|retrato|people|person|crowd|protest|manifesta\w*|svg|screenshot|icon|chart|gr[aá]fico|child|children|woman|man|worker\w*|soldier\w*|president|minister)\b/i
+const BANNED = /\b(logo|map|mapa|diagram|flag|bandeira|poster|portrait|retrato|people|person|crowd|protest|manifesta\w*|svg|screenshot|icon|chart|gr[aá]fico|child|children|woman|man|worker\w*|soldier\w*|president|minister|navy|naval|army|military|soldier|sailor|meeting|conference|ceremony|visit|visits|officials?|commander|staff|employees?|volunteers?|students?|tray|bucket|laboratory|lab|sample|samples|kitchen|office|room|interior)\b/i
 
 /** Gravuras, desenhos, fotos históricas e digitalizações: não servem como foto de notícia atual. */
 const OLD_OR_ART = /\b(engraving|drawing|painting|illustration|lithograph\w*|sketch|vintage|historic\w*|postcard|scan(ned)?|newspaper|journal|magazine|woodcut|etching|archive\w*|museum|(1[0-8]\d\d|19[0-7]\d))\b/i
@@ -148,3 +148,9 @@ export async function searchLogo(name: string): Promise<Logo | null> {
   }
   return null
 }
+
+/** Vocabulário do setor: a foto só serve se o título/descrição/categorias falarem de obra, água, estrada, moradia etc. */
+const SECTOR = /\b(construction|building|bridge|road|highway|asphalt|pavement|crane|excavat\w*|scaffold\w*|concrete|steel|sewage|sewer|wastewater|water|treatment plant|pipeline|pipe|pipes|reservoir|dam|landfill|waste|recycling|drainage|culvert|flood\w*|housing|apartment|residential|skyscraper|airport|runway|terminal|railway|rail|train|port|harbou?r|tunnel|infrastructure|engineering|obra|constru[cç][aã]o|ponte|rodovia|esgoto|saneamento|usina|barragem)\b/i
+export const isSectorPhoto = (photo: { text: string }) => SECTOR.test(photo.text)
+/** Matéria de dado/política/gestão (sem cena física): prefere a logo da entidade a uma foto aleatória. */
+export const isAbstractStory = (title: string) => /\b(PIB|juros|Selic|[ií]ndice|capital fixo|infla[cç][aã]o|IPCA|INCC|SINAPI|projeto de lei|intelig[eê]ncia artificial|distrato|zoneamento|jur[ií]dic\w*|bilh[oõ]es? para|relat[oó]rio|pesquisa|dificuldade financeira|estrat[eé]gia)\b/i.test(title)

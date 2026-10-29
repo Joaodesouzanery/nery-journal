@@ -52,3 +52,11 @@ test('entidade no título, matéria brasileira e foto estrangeira', () => {
   assert.equal(isForeignPhoto({ text: 'water plant in California, USA' }), true)
   assert.equal(isForeignPhoto({ text: 'estação de tratamento em Minas Gerais' }), false)
 })
+
+import { isSectorPhoto, isAbstractStory } from './photos.ts'
+test('foto do setor e matéria abstrata', () => {
+  assert.equal(isSectorPhoto({ text: 'sewage treatment plant aerial' }), true)
+  assert.equal(isSectorPhoto({ text: 'white tray with leaves' }), false)
+  assert.equal(isAbstractStory('Investimento em capital fixo no Brasil foi de 16,8% do PIB'), true)
+  assert.equal(isAbstractStory('DNIT abre pregão de R$ 210 milhões para recuperar a BR-267'), false)
+})

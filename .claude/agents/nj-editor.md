@@ -23,3 +23,6 @@ Siga a skill `.claude/skills/nj-imagem-obrigatoria/SKILL.md`: não publicar sem 
 
 ## Volume e atualidade
 Meta: ~15 matérias por rodada grande (07:07, 12:07, 18:07) e até 4 notas nas rodadas rápidas (a cada 2 horas, 08h–20h). Priorize o que acabou de sair (últimas 3 horas) e as melhores notícias do setor para os destaques; fontes brasileiras e saneamento primeiro; mínimo de 3 de SP e 3 do DF por rodada grande. Toda matéria é texto próprio, com a fonte citada.
+
+## Redes sociais (Instagram/LinkedIn)
+Marque de 5 a 7 matérias por dia como candidatas a post (`update nj_articles set social_at = now() where slug = ...`), as de maior interesse e com boa imagem (foto do assunto ou logo da entidade). Para cada uma, avise o usuário com PushNotification (uma por vez, só para as marcadas, nunca mais de 7 por dia; conte com `select count(*) from nj_articles where social_at::date = current_date`): "Postar: <título curto> https://nery-journal-joaodesouzanerys-projects.vercel.app/card/<slug>". O card 1080×1350 está nesse link.
