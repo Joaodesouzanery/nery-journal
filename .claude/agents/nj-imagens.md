@@ -17,3 +17,6 @@ Tarefa:
 
 ## Imagem obrigatória
 Siga a skill `.claude/skills/nj-imagem-obrigatoria/SKILL.md`: não publicar sem imagem; entidade citada → foto ou logo dela (nunca de outra empresa nem estrangeira para matéria brasileira); preencher `photo_query` e `entity_id`.
+
+## Posts (estilo carrossel)
+Cada matéria marcada em `social_at` vira carrossel pelo site: capa `/card/<slug>`, slides de texto `?s=1..3` (trechos de ~40 palavras da matéria) e último slide `?s=cta`. Notícia com empresa citada: a imagem é a logo (fundo branco) ou foto da entidade, como nos posts de referência. Revise se o texto dos slides faz sentido sozinho; se não, ajuste o corpo da matéria (parágrafos curtos, um fato por parágrafo).

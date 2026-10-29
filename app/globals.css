@@ -300,3 +300,16 @@ a { color: inherit; }
 
 .uf.locked { opacity: .75; } .pro-hint { font-size: 13px; color: #6b757d; align-self: center; }
 .pager { display: flex; gap: 16px; align-items: center; justify-content: center; margin: 28px 0; flex-wrap: wrap; }
+
+/* Cadastro obrigatório */
+.gate { position: fixed; inset: 0; z-index: 100; background: rgba(8,16,22,.82); backdrop-filter: blur(6px); display: grid; place-items: center; padding: 16px; overflow: auto; }
+.gate-box { background: #fff; border-radius: 14px; max-width: 440px; width: 100%; padding: 26px 24px; display: grid; gap: 12px; box-shadow: 0 24px 70px rgba(0,0,0,.4); }
+.gate-box h2 { margin: 0; font-weight: 600; font-size: 24px; } .gate-box p { margin: 0; color: #555; }
+.gate-box label { display: grid; gap: 4px; font-size: 13px; color: #555; }
+.gate-box input:not([type=checkbox]), .gate-box select { font: inherit; font-size: 15px; padding: 10px; border: 1px solid #cfd6db; border-radius: 6px; width: 100%; box-sizing: border-box; background: #fff; }
+.gate-box label.chk { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; }
+
+/* Relatório semanal (A4) */
+.report { max-width: 780px; margin: 0 auto; padding: 24px 20px; } .report h2 { font-size: 18px; border-bottom: 2px solid #1a7aa8; padding-bottom: 4px; margin: 22px 0 8px; }
+.rep-head { display: flex; justify-content: space-between; border-bottom: 3px solid #111; padding-bottom: 10px; } .report table { width: 100%; border-collapse: collapse; font-size: 13px; } .report th, .report td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #ddd; vertical-align: top; }
+@media print { .header, .footer, .topad, .notice, .feedback, .bar, .gate, .noprint { display: none !important; } .report { padding: 0; } @page { size: A4; margin: 14mm; } }

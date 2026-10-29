@@ -42,3 +42,26 @@ export async function sendMail(_msg: { to: string; subject: string; html: string
   //   List-Unsubscribe-Post: List-Unsubscribe=One-Click
   throw new Error('Provedor de e-mail não configurado.')
 }
+
+export interface BriefingItem { category: string; title: string; summary: string; url: string; imageUrl?: string; credit?: string }
+
+/**
+ * Boletim Pro diário (formato "briefing", inspirado em newsletters de leitura rápida): faixa de marca, data, abertura curta,
+ * blocos por assunto com título grande, resumo em 2–3 frases e botão, indicadores, bloco de patrocinador, compartilhar no WhatsApp.
+ */
+export function briefingEmail(p: { dateLabel: string; opening: string; items: BriefingItem[]; indicators: { nome: string; valor: string }[]; sponsor?: { name: string; imageUrl: string; url: string }; prefsUrl: string; unsubUrl: string; privacyUrl: string; shareUrl?: string }) {
+  const blocks = p.items.map((i, n) => `
+<tr><td style="padding:28px 28px 0"><div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#1a7aa8;font-weight:700">${esc(i.category)}</div>
+<h2 style="margin:6px 0 10px;font-size:${n === 0 ? 28 : 22}px;line-height:1.2;color:#111">${esc(i.title)}</h2>
+${i.imageUrl ? `<img src="${esc(i.imageUrl)}" alt="" width="544" style="width:100%;max-width:544px;border-radius:8px;display:block;margin:0 0 4px"/>${i.credit ? `<div style="font-size:11px;color:#888;margin-bottom:8px">${esc(i.credit)}</div>` : ''}` : ''}
+<p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#222">${esc(i.summary)}</p>
+<a href="${esc(i.url)}" style="color:#1a7aa8;font-weight:700;text-decoration:none;font-size:14px">Ler a matéria completa →</a></td></tr>`).join('')
+  const ind = p.indicators.length ? `<tr><td style="padding:28px 28px 0"><div style="background:#f1f7fa;border-left:4px solid #1a7aa8;padding:14px 16px;border-radius:6px"><div style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#1a7aa8;font-weight:700;margin-bottom:6px">Indicadores do dia</div>${p.indicators.map((i) => `<div style="font-size:14px;line-height:1.7;color:#222">${esc(i.nome)}: <b>${esc(i.valor)}</b></div>`).join('')}</div></td></tr>` : ''
+  const sponsor = p.sponsor ? `<tr><td style="padding:28px 28px 0" align="center"><div style="font-size:10px;letter-spacing:.12em;color:#888;text-transform:uppercase;margin-bottom:6px">Publicidade · oferecido por ${esc(p.sponsor.name)}</div><a href="${esc(p.sponsor.url)}"><img src="${esc(p.sponsor.imageUrl)}" alt="${esc(p.sponsor.name)}" width="544" style="width:100%;max-width:544px;border-radius:6px"/></a></td></tr>` : ''
+  const share = p.shareUrl ? `<tr><td style="padding:24px 28px 0" align="center"><a href="https://wa.me/?text=${encodeURIComponent(p.shareUrl)}" style="color:#0a7a3f;font-weight:700;text-decoration:none;font-size:15px">Compartilhe pelo WhatsApp</a></td></tr>` : ''
+  const body = `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr><td style="padding:0 28px" align="center"><div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#666;margin:6px 0 14px">${esc(p.dateLabel)}</div>
+<p style="font-size:16px;line-height:1.6;color:#333;margin:0 0 4px">${esc(p.opening)}</p></td></tr>
+${blocks}${ind}${sponsor}${share}</table>`
+  return shell('Boletim Nery Journal', body, { prefs: p.prefsUrl, unsub: p.unsubUrl, privacy: p.privacyUrl })
+}

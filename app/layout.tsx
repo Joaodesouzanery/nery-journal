@@ -3,6 +3,7 @@ import './globals.css'
 import { Header, Footer, TopAd } from '@/components/Chrome'
 import Newsletter from '@/components/Newsletter'
 import { FeedbackModal } from '@/components/FeedbackModal'
+import RegistrationGate from '@/components/RegistrationGate'
 
 const indexable = process.env.NEXT_PUBLIC_INDEXABLE === '1'
 
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main>{children}</main>
         <Footer />
         <FeedbackModal />
+        <RegistrationGate />
         <Newsletter variant="bar" />
       </body>
     </html>
