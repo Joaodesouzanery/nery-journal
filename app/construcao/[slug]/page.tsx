@@ -41,6 +41,9 @@ export default async function Article({ params }: Props) {
       )}
       <p className="lede">{a.lede}</p>
       {a.is_placeholder && <div className="disclosure"><b>EXEMPLO.</b> Conteúdo fictício para validar o layout. Não é notícia.</div>}
+      {a.facts && a.facts.length > 1 && !a.is_placeholder && (
+        <aside className="keyfacts" aria-label="Pontos principais"><b>Pontos principais</b><ul>{a.facts.map((f, i) => <li key={i}>{f}</li>)}</ul></aside>
+      )}
       <div className="body">{renderBody(a.body_md)}</div>
       {!a.is_placeholder && <ArticleUseful slug={a.slug} />}
       <div className="src">

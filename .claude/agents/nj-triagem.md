@@ -18,3 +18,6 @@ Escolha até **6 pautas por rodada** para o Brasil todo: ~2 de dados/licitaçõe
 
 ## Cobertura nacional por estado
 O jornal é do Brasil todo. Em cada rodada, varie os estados: não repita a mesma UF duas vezes seguidas e inclua SP, MG, RJ, PR, RS, BA, PE e CE com frequência (veja `select uf, count(*) from nj_licitacoes ... group by uf`). Gravando a matéria, preencha `nj_articles.uf` (sigla do estado principal; vazio para matéria nacional/internacional). Não há radar público: toda matéria é texto próprio; links de veículos só como fonte ao final.
+
+## Quota São Paulo e Brasília
+Cada rodada deve ter pelo menos 1 matéria de São Paulo (estado ou capital) e 1 do Distrito Federal/Brasília (governo federal, Congresso, ministérios, DNIT, ANTT, Caixa e órgãos sediados em Brasília contam como DF). Use `uf` = 'SP' ou 'DF'. Fontes: Secovi-SP, SindusCon-SP, Agência Gov, Agência Senado/Câmara, Agência iNFRA, CBIC, PNCP (licitações de SP/DF).

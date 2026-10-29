@@ -292,3 +292,5 @@ a { color: inherit; }
 .stars { display: flex; gap: 4px; } .stars button { border: 0; background: none; font-size: 34px; line-height: 1; color: #cfd6db; cursor: pointer; padding: 0 2px; } .stars button.on { color: #f5b301; }
 .useful { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; border-top: 1px solid #e3e7ea; margin-top: 24px; padding-top: 16px; }
 @media (max-width: 700px) { .feedback { display: block; top: auto; bottom: 74px; right: 0; } }
+
+.keyfacts { background: #f1f7fa; border-left: 4px solid #1a7aa8; border-radius: 6px; padding: 12px 16px; margin: 0 0 20px; } .keyfacts ul { margin: 6px 0 0; padding-left: 18px; } .keyfacts li { margin: 4px 0; }

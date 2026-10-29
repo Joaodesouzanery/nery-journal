@@ -35,7 +35,8 @@ export default async function Licitacoes({ searchParams }: { searchParams: Promi
   const r = resumo(rows)
   const countTema = (id: string) => filtrarLicitacoes(base, { ...f, tema: id }).length
   const ativo = !!(uf || sp.tema || sp.faixa || sp.modalidade || sp.q)
-  const shown = rows.slice(0, 300)
+  const FREE = 10 // no plano gratuito só as 10 primeiras; a lista completa é do Pro
+  const shown = rows.slice(0, FREE)
 
   return (
     <div className="wrap lic">
@@ -83,7 +84,7 @@ export default async function Licitacoes({ searchParams }: { searchParams: Promi
         <div className="disclosure">Nenhum edital com esses filtros. Tente ampliar o período ou limpar os filtros.</div>
       ) : (
         <>
-          <p className="lic-count">Mostrando {nf(shown.length)} de {nf(rows.length)} editais</p>
+          <p className="lic-count">Mostrando {nf(shown.length)} de {nf(rows.length)} editais{rows.length > FREE && <> · <Link href="/licitacoes/pro">veja a lista completa no Nery Journal Pro</Link></>}</p>
           <ul className="lic-list">
             {shown.map((l) => {
               const t = temaDe(l.objeto)
@@ -109,9 +110,9 @@ export default async function Licitacoes({ searchParams }: { searchParams: Promi
         </>
       )}
       <div className="signup" style={{ marginTop: 32 }}>
-        <h3>Alertas, histórico e exportação CSV</h3>
-        <p>Plano Pro por R$ 9,99/mês para os 10 primeiros assinantes.</p>
-        <Link className="btn accent" href="/licitacoes/pro">Ver o plano Pro</Link>
+        <h3>Lista completa, histórico e CSV no Nery Journal Pro</h3>
+        <p>Oferta de fundadores: R$ 9,99/mês para os 10 primeiros assinantes.</p>
+        <Link className="btn accent" href="/licitacoes/pro">Conhecer o Pro</Link>
       </div>
     </div>
   )

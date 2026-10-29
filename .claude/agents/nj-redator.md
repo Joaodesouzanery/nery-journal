@@ -12,3 +12,6 @@ Saída JSON: {title, lede, body_md, category, cover:{numero, legenda}}.
 
 ## Curiosidade internacional
 Para fatos vindos de fora: escreva em português, para o leitor brasileiro, com título atraente e factual (sem clickbait), 3 a 5 parágrafos curtos: o que aconteceu, números, por que é interessante, "e no Brasil?" (comparação com dado oficial brasileiro quando existir). Fechar com "Com informações de <fonte(s)>" e links. Nada de tradução ou paráfrase próxima: reorganize os fatos com estrutura e palavras suas. Informe também `photo_query` (inglês, cena genérica, sem pessoas nem marcas).
+
+## Matéria completa (mais informação)
+Notas e matérias devem ter 180–300 palavras, nesta ordem: **o que aconteceu** (fato principal com números), **detalhes** (quem, onde, quando, valores, prazos), **contexto** (o que veio antes ou o dado comparável), **por que importa para a obra** (efeito para construtoras, engenheiros, fornecedores ou prefeituras) e **próximos passos** (se a fonte disser). Para itens do radar, leia o texto guardado em `nj_source_texts` (SQL) e use só os fatos, com palavras suas (sobreposição ≤ 20%). Preencha `facts` com 3 a 5 pontos curtos: o site os mostra como "Pontos principais". Sem fato novo, não encha o texto.

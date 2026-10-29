@@ -15,6 +15,7 @@ export interface ArticleRow {
   ai_assisted: boolean
   photo_url?: string | null
   uf?: string | null
+  facts?: string[] | null
   cover?: { numero: string; legenda: string } | null
 }
 
@@ -61,7 +62,7 @@ function client() {
   return url && key ? createClient(url, key, { auth: { persistSession: false } }) : null
 }
 
-const COLS = 'slug,sector,category,title,lede,body_md,sources,published_at,is_placeholder,ai_assisted,photo_id,cover,uf'
+const COLS = 'slug,sector,category,title,lede,body_md,sources,published_at,is_placeholder,ai_assisted,photo_id,cover,uf,facts'
 
 export async function getArticles(limit = 30): Promise<ArticleRow[]> {
   const db = client()
@@ -78,6 +79,13 @@ export async function getArticles(limit = 30): Promise<ArticleRow[]> {
       const byId = new Map((photos ?? []).map((p: { id: string; url: string }) => [p.id, p.url]))
       for (const r of rows) r.photo_url = r.photo_id ? byId.get(r.photo_id) ?? null : null
     }
+    // Nunca sem imagem: matéria sem foto própria recebe uma foto do mesmo assunto, escolhida entre as já ligadas a outras matérias.
+    const { data: all } = await db.from('nj_photos').select('id,url').eq('license_verified', true).limit(200)
+    const pool = new Map<string, string[]>()
+    for (const r of rows) if (r.photo_url) pool.set(r.category, [...(pool.get(r.category) ?? []), r.photo_url])
+    const any = [...pool.values()].flat().concat((all ?? []).map((p: { url: string }) => p.url))
+    const h = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7)
+    for (const r of rows) if (!r.photo_url) { const c = pool.get(r.category) ?? any; r.photo_url = c.length ? c[h(r.slug) % c.length] : null }
     return rows
   } catch {
     return PLACEHOLDERS
