@@ -3,7 +3,7 @@ import { admin, EMAIL_RE } from '@/lib/newsletter'
 import { CONSENT_VERSION } from '@/lib/constants'
 
 const SEGMENTS = ['Construtora / incorporadora', 'Engenharia e projetos', 'Fornecedor de materiais', 'Saneamento / utilities', 'Órgão público', 'Banco / financeira', 'Outro']
-export const CADASTRO_CONSENT = 'Concordo em me cadastrar no Nery Journal e que meu e-mail e dados profissionais sejam usados para liberar o acesso e para comunicações do Nery Journal. Posso cancelar a qualquer momento.'
+const CADASTRO_CONSENT = 'Concordo em me cadastrar no Nery Journal e que meu e-mail e dados profissionais sejam usados para liberar o acesso e para comunicações do Nery Journal. Posso cancelar a qualquer momento.'
 
 /** Cadastro gratuito para acessar o site (nome, e-mail, empresa, segmento). Grava em nj_subscribers como "pending" com a prova do consentimento. */
 export async function POST(req: Request) {
