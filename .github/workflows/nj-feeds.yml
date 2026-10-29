@@ -1,0 +1,26 @@
+name: nj-feeds
+# Coleta as manchetes (radar) e o texto das fontes a cada 2 horas, antes das rodadas rápidas de matérias.
+on:
+  push:
+    paths: ['.github/triggers/feeds']
+  schedule:
+    - cron: '55 10,12,14,16,18,20,22 * * *'   # 07:55, 09:55, ... 19:55 (Brasília)
+  workflow_dispatch:
+jobs:
+  feeds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund
+      - run: npm run nj:feeds
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - if: ${{ !cancelled() }}
+        run: npm run nj:texts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
