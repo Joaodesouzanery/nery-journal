@@ -37,7 +37,7 @@ export default async function Article({ params }: Props) {
       <h1>{a.title}</h1>
       {a.photo_url && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={a.photo_url} alt="" style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', borderRadius: 8, margin: '8px 0 20px' }} />
+        <img src={a.photo_url} alt="" style={{ width: '100%', aspectRatio: '16/9', objectFit: a.photo_kind === 'logo' ? 'contain' : 'cover', background: a.photo_kind === 'logo' ? '#fff' : undefined, padding: a.photo_kind === 'logo' ? '6% 20%' : undefined, boxSizing: 'border-box', border: a.photo_kind === 'logo' ? '1px solid #e3e7ea' : undefined, borderRadius: 8, margin: '8px 0 20px' }} />
       )}
       <p className="lede">{a.lede}</p>
       {a.is_placeholder && <div className="disclosure"><b>EXEMPLO.</b> Conteúdo fictício para validar o layout. Não é notícia.</div>}

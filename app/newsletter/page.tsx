@@ -7,8 +7,8 @@ export default function NewsletterPage() {
     <>
       <section className="nhero">
         <div className="wrap">
-          <h1>Inscreva-se para receber o Boletim Nery Journal</h1>
-          <p>Receba notícias, indicadores e licitações de obras direto no seu e-mail. Escolha os conteúdos e os estados que importam para o seu negócio. Você pode cancelar a inscrição a qualquer momento.</p>
+          <h1>Boletim Nery Journal, exclusivo do Pro</h1>
+          <p>O Boletim completo, enviado todo dia útil, faz parte do Nery Journal Pro, com filtros por assunto e estado. Entre na lista de espera: avisamos assim que abrir e você garante a oferta de fundadores (R$ 9,99/mês para os 10 primeiros). O site, as notícias e os indicadores continuam grátis.</p>
         </div>
       </section>
       <div className="wrap"><NewsletterForm /></div>

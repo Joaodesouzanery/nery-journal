@@ -4,7 +4,7 @@ import Link from 'next/link'
 export function Visual({ a }: { a: ArticleRow }) {
   return a.photo_url
     // eslint-disable-next-line @next/next/no-img-element
-    ? <img className="coverimg" src={a.photo_url} alt="" loading="lazy" decoding="async" />
+    ? <img className={a.photo_kind === 'logo' ? 'coverimg logoimg2' : 'coverimg'} src={a.photo_url} alt="" loading="lazy" decoding="async" />
     : null
 }
 import { fmtDate } from '@/lib/data'

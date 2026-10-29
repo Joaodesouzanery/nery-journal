@@ -102,3 +102,49 @@ export async function searchCommons(query: string): Promise<CommonsPhoto[]> {
   const body = (await res.json()) as { query?: { pages?: Record<string, CommonsPage> } }
   return pickPhotos(Object.values(body.query?.pages ?? {}))
 }
+
+// ---------------------------------------------------------------------------
+// Entidades (empresas, órgãos, agências): a matéria sobre a Sabesp usa imagem da Sabesp (foto livre ou logo), não de terceiros.
+// ---------------------------------------------------------------------------
+export interface Entity { id: string; name: string; aliases: string[]; country: string; logo_url: string | null }
+
+const escRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/** Entidade citada no título (ou no início do texto). Siglas curtas (≤4 letras) exigem caixa alta exata. */
+export function matchEntity(text: string, entities: Entity[]): Entity | null {
+  for (const e of entities) {
+    for (const a of [e.name, ...e.aliases]) {
+      const short = a.length <= 4
+      if (new RegExp(`(^|[^\\p{L}\\p{N}])${escRe(a)}(?![\\p{L}\\p{N}])`, short ? 'u' : 'iu').test(text)) return e
+    }
+  }
+  return null
+}
+
+/** Matéria brasileira: alguma fonte em domínio .br. Matéria brasileira não usa foto de lugar/empresa estrangeira. */
+export const isBrazilStory = (sources: { url: string }[]) => sources.some((s) => /^https?:\/\/[^/]*\.br(\/|$)/i.test(s.url))
+const FOREIGN = /\b(usa|u\.s\.a?|united states|american?|america|texas|california|florida|new york|chicago|washington|london|england|uk|britain|british|scotland|wales|australia|canada|india|china|japan|germany|france|italy|spain|dubai|singapore)\b/i
+export const isForeignPhoto = (photo: { text: string }) => FOREIGN.test(photo.text)
+
+export interface Logo { url: string; origin_url: string; license: string }
+
+/** Logo da entidade no Commons (PNG/SVG convertido em PNG). Uso editorial para identificar o assunto da matéria. */
+export async function searchLogo(name: string): Promise<Logo | null> {
+  const u = new URL('https://commons.wikimedia.org/w/api.php')
+  u.search = new URLSearchParams({
+    action: 'query', format: 'json', generator: 'search', gsrnamespace: '6', gsrlimit: '15',
+    gsrsearch: `${name} logo`, prop: 'imageinfo', iiprop: 'url|size|mime|extmetadata', iiurlwidth: '600', origin: '*',
+  }).toString()
+  const res = await fetch(u, { headers: { 'user-agent': 'nery-journal-photos/0.1 (https://github.com/Joaodesouzanery/nery-journal; neryadministrativo@gmail.com)' }, signal: AbortSignal.timeout(20000) })
+  if (!res.ok) return null
+  const body = (await res.json()) as { query?: { pages?: Record<string, CommonsPage> } }
+  const key = name.toLowerCase().split(/\s+/)[0]
+  for (const p of Object.values(body.query?.pages ?? {})) {
+    const ii = p.imageinfo?.[0]
+    if (!ii || !/^image\/(png|svg\+xml|jpeg)$/.test(ii.mime ?? '')) continue
+    if (!(p.title ?? '').toLowerCase().includes(key) || !/logo|logotipo|marca/i.test(p.title ?? '')) continue
+    const url = ii.thumburl ?? ii.url
+    if (url) return { url, origin_url: ii.descriptionurl ?? url, license: ii.extmetadata?.LicenseShortName?.value ?? 'logo (uso editorial)' }
+  }
+  return null
+}

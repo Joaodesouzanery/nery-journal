@@ -10,7 +10,7 @@ export const revalidate = 300
 const isDados = (a: { sources: { primary?: boolean }[] }) => a.sources.some((s) => s.primary)
 
 export default async function Home() {
-  const [items, indicadores] = await Promise.all([getArticles(40), getIndicadores()])
+  const [items, indicadores] = await Promise.all([getArticles(60), getIndicadores()])
   const [a, b, c, d, ...rest] = items
   const analises = items.filter(isDados).slice(0, 4)
   const sanea = items.filter((x) => x.category === 'Saneamento' || ehSaneamento(x.title)).slice(0, 3)
@@ -44,7 +44,7 @@ export default async function Home() {
       {rest.length > 0 && (
         <section aria-label="Todas as notícias">
           <h2 className="h2">Todas as notícias</h2>
-          <div className="cards">{rest.slice(0, 9).map((x) => <NewsCard key={x.slug} a={x} />)}</div>
+          <div className="cards">{rest.slice(0, 46).map((x) => <NewsCard key={x.slug} a={x} />)}</div>
           <div className="more"><Link className="btn" href="/noticias">Ver todas as notícias</Link></div>
         </section>
       )}

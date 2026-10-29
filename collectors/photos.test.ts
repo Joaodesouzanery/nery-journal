@@ -40,3 +40,15 @@ test('consultas do título e correlação da foto', () => {
   assert.equal(bestPhoto('landfill waste facility', [a, b]), b)
   assert.equal(bestPhoto('landfill waste facility', [a]), null)
 })
+
+import { matchEntity, isBrazilStory, isForeignPhoto } from './photos.ts'
+test('entidade no título, matéria brasileira e foto estrangeira', () => {
+  const ents = [{ id: '1', name: 'Sabesp', aliases: ['Sabesp'], country: 'BR', logo_url: null }, { id: '2', name: 'ANA', aliases: ['ANA'], country: 'BR', logo_url: null }]
+  assert.equal(matchEntity('Sabesp licita R$ 1 bilhão em obras', ents)?.name, 'Sabesp')
+  assert.equal(matchEntity('Banana e mana', ents), null)
+  assert.equal(matchEntity('ANA lança norma', ents)?.name, 'ANA')
+  assert.equal(isBrazilStory([{ url: 'https://agenciagov.ebc.com.br/x' }]), true)
+  assert.equal(isBrazilStory([{ url: 'https://www.waterworld.com/x' }]), false)
+  assert.equal(isForeignPhoto({ text: 'water plant in California, USA' }), true)
+  assert.equal(isForeignPhoto({ text: 'estação de tratamento em Minas Gerais' }), false)
+})

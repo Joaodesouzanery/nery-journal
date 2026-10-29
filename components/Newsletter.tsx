@@ -7,13 +7,13 @@ export default function Newsletter({ variant }: { variant: 'button' | 'bar' | 'b
   const [hidden, setHidden] = useState(false)
   const path = usePathname()
 
-  if (variant === 'button') return <a className="btn accent" href="/newsletter">Receber newsletter</a>
+  if (variant === 'button') return <a className="btn accent" href="/newsletter">Receber boletim (Pro)</a>
   if (variant === 'box') {
     return (
       <div className="signup">
-        <h3>Receba o Boletim Nery Journal</h3>
-        <p>Notícias, indicadores e licitações de obras direto na sua caixa de entrada.</p>
-        <a className="btn" href="/newsletter">Cadastrar</a>
+        <h3>Boletim Nery Journal (Pro)</h3>
+        <p>O resumo diário completo, com filtros por assunto e estado. Entre na lista de espera.</p>
+        <a className="btn" href="/newsletter">Entrar na lista</a>
       </div>
     )
   }
@@ -21,9 +21,9 @@ export default function Newsletter({ variant }: { variant: 'button' | 'bar' | 'b
   return (
     <div className="bar" role="region" aria-label="Newsletter">
       <div className="wrap">
-        <p><b>Assine o Boletim Nery Journal</b>Notícias, indicadores e licitações de obras com fonte e licença identificadas.</p>
+        <p><b>Boletim Nery Journal (Pro)</b>O resumo diário completo, com filtros por assunto e estado.</p>
         <div style={{ display: 'flex', gap: 10 }}>
-          <a className="btn accent" href="/newsletter">Cadastrar</a>
+          <a className="btn accent" href="/newsletter">Entrar na lista</a>
           <button className="btn" onClick={() => setHidden(true)}>Fechar</button>
         </div>
       </div>

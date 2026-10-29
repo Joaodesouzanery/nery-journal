@@ -294,3 +294,9 @@ a { color: inherit; }
 @media (max-width: 700px) { .feedback { display: block; top: auto; bottom: 74px; right: 0; } }
 
 .keyfacts { background: #f1f7fa; border-left: 4px solid #1a7aa8; border-radius: 6px; padding: 12px 16px; margin: 0 0 20px; } .keyfacts ul { margin: 6px 0 0; padding-left: 18px; } .keyfacts li { margin: 4px 0; }
+
+/* Logo da entidade como imagem da matéria: centralizada sobre fundo claro, sem cortar */
+.coverimg.logoimg2 { object-fit: contain; background: #fff; padding: 12% 18%; box-sizing: border-box; }
+
+.uf.locked { opacity: .75; } .pro-hint { font-size: 13px; color: #6b757d; align-self: center; }
+.pager { display: flex; gap: 16px; align-items: center; justify-content: center; margin: 28px 0; flex-wrap: wrap; }

@@ -17,3 +17,9 @@ O jornal é do Brasil todo. Em cada rodada, varie os estados: não repita a mesm
 
 ## Quota São Paulo e Brasília
 Cada rodada deve ter pelo menos 1 matéria de São Paulo (estado ou capital) e 1 do Distrito Federal/Brasília (governo federal, Congresso, ministérios, DNIT, ANTT, Caixa e órgãos sediados em Brasília contam como DF). Use `uf` = 'SP' ou 'DF'. Fontes: Secovi-SP, SindusCon-SP, Agência Gov, Agência Senado/Câmara, Agência iNFRA, CBIC, PNCP (licitações de SP/DF).
+
+## Imagem obrigatória
+Siga a skill `.claude/skills/nj-imagem-obrigatoria/SKILL.md`: não publicar sem imagem; entidade citada → foto ou logo dela (nunca de outra empresa nem estrangeira para matéria brasileira); preencher `photo_query` e `entity_id`.
+
+## Volume e atualidade
+Meta: ~15 matérias por rodada grande (07:07, 12:07, 18:07) e até 4 notas nas rodadas rápidas (a cada 2 horas, 08h–20h). Priorize o que acabou de sair (últimas 3 horas) e as melhores notícias do setor para os destaques; fontes brasileiras e saneamento primeiro; mínimo de 3 de SP e 3 do DF por rodada grande. Toda matéria é texto próprio, com a fonte citada.

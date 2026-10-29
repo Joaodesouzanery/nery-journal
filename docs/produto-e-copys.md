@@ -6,15 +6,14 @@
 3. **Receita**: (a) publicidade/patrocínio no topo do site, no boletim e nos cards; (b) assinaturas Pro; (c) depois, eventos/jantares fechados do setor (o Not Journal anuncia o "Circle").
 Gratuito: todas as notícias, indicadores principais, boletim semanal. Pro: boletim diário, séries históricas e CSV, lista completa de licitações e filtros, arquivo, alertas.
 
-## Stripe
+## Stripe (versão atual: boletim, filtros e extras no Pro; site, notícias e indicadores grátis)
 - **Nome do produto:** Nery Journal Pro
-- **Descrição:** Boletim diário completo, painel de dados da construção, radar de licitações por estado e alertas por tema. Para construtoras, engenheiros, fornecedores e poder público.
-- **Preço 1 (ativo):** R$ 9,99/mês, recorrente, nickname "Fundadores (10 vagas)". Limite de 10 clientes: use um código promocional/link com limite de resgates = 10 ou desative o link ao atingir 10.
-- **Preço 2 (rascunho, inativo):** R$ 39,00/mês (nickname "Pro mensal") e R$ 390,00/ano (2 meses grátis).
-- **Statement descriptor:** NERY JOURNAL PRO (até 22 caracteres).
-- **Cobrança:** Pix e cartão; trial: nenhum (já é preço de lançamento); cancelamento a qualquer momento; reembolso em 7 dias (CDC art. 49).
-- **Link de pagamento:** cole em `NEXT_PUBLIC_PRO_CHECKOUT_URL` (Vercel) e o botão "Assinar" aparece em /licitacoes/pro.
-- Pendências legais: CNPJ, emissão de NFS-e, termos de uso, política de privacidade revisada.
+- **Descrição curta (até 255 caracteres):** Boletim Nery Journal diário completo, filtros por assunto e estado (ex.: Saneamento em São Paulo), painel de dados da construção com CSV, radar de licitações e alertas.
+- **Descrição longa:** O Nery Journal Pro reúne o que importa para quem constrói o Brasil. Você recebe o Boletim completo todo dia útil, monta seu feed combinando assuntos e estados, acessa séries de dados (custo da construção, juros, produção) com exportação em CSV, o radar completo de licitações de obras e saneamento e alertas por tema. O site, as notícias e os indicadores principais continuam gratuitos.
+- **Preço 1 (ativo):** R$ 9,99/mês, recorrente, nickname "Fundadores (10 vagas)". Limite de 10 clientes: código promocional/link com 10 resgates ou desative o link ao atingir 10.
+- **Preço 2 (rascunho, inativo):** R$ 39,00/mês e R$ 390,00/ano.
+- **Statement descriptor:** NERY JOURNAL PRO. **Pix e cartão.** Cancelamento a qualquer momento; reembolso em 7 dias.
+- **Link de pagamento:** cole em `NEXT_PUBLIC_PRO_CHECKOUT_URL` (Vercel). E-mail de contato: neryadministrativo@gmail.com. CNPJ, NFS-e e termos ficam para depois.
 
 ## Copys do site
 - **Home (título):** Destaques — "Notícias, dados e licitações para quem constrói o Brasil, com fontes identificadas."

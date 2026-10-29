@@ -14,3 +14,6 @@ Tarefa:
 
 ## Foto bem correlacionada
 `photo_query` deve ter 2–4 termos em inglês do assunto exato (ex.: "landfill waste facility", "storm drain culvert", "asphalt road paving"). O script exige termo em comum com a foto nas consultas específicas e só cai para o tema geral por último. Depois da rodada, confira por SQL `nj_photos.origin_url` das matérias novas e troque as que não combinam (apague `photo_id` e ajuste `photo_query`).
+
+## Imagem obrigatória
+Siga a skill `.claude/skills/nj-imagem-obrigatoria/SKILL.md`: não publicar sem imagem; entidade citada → foto ou logo dela (nunca de outra empresa nem estrangeira para matéria brasileira); preencher `photo_query` e `entity_id`.

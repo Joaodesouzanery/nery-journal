@@ -14,6 +14,7 @@ export interface ArticleRow {
   is_placeholder: boolean
   ai_assisted: boolean
   photo_url?: string | null
+  photo_kind?: 'photo' | 'logo'
   uf?: string | null
   facts?: string[] | null
   cover?: { numero: string; legenda: string } | null
@@ -75,14 +76,14 @@ export async function getArticles(limit = 30): Promise<ArticleRow[]> {
     // Fotos livres (CC0/domínio público) ligadas à matéria; sem foto, o site usa a ilustração do tema.
     const ids = [...new Set(rows.map((r) => r.photo_id).filter((x): x is string => !!x))]
     if (ids.length) {
-      const { data: photos } = await db.from('nj_photos').select('id,url').in('id', ids)
-      const byId = new Map((photos ?? []).map((p: { id: string; url: string }) => [p.id, p.url]))
-      for (const r of rows) r.photo_url = r.photo_id ? byId.get(r.photo_id) ?? null : null
+      const { data: photos } = await db.from('nj_photos').select('id,url,kind').in('id', ids)
+      const byId = new Map((photos ?? []).map((p: { id: string; url: string; kind: string }) => [p.id, p]))
+      for (const r of rows) { const ph = r.photo_id ? byId.get(r.photo_id) : undefined; r.photo_url = ph?.url ?? null; r.photo_kind = ph?.kind === 'logo' ? 'logo' : 'photo' }
     }
     // Nunca sem imagem: matéria sem foto própria recebe uma foto do mesmo assunto, escolhida entre as já ligadas a outras matérias.
-    const { data: all } = await db.from('nj_photos').select('id,url').eq('license_verified', true).limit(200)
+    const { data: all } = await db.from('nj_photos').select('id,url').eq('license_verified', true).eq('kind', 'photo').limit(200)
     const pool = new Map<string, string[]>()
-    for (const r of rows) if (r.photo_url) pool.set(r.category, [...(pool.get(r.category) ?? []), r.photo_url])
+    for (const r of rows) if (r.photo_url && r.photo_kind !== 'logo') pool.set(r.category, [...(pool.get(r.category) ?? []), r.photo_url])
     const any = [...pool.values()].flat().concat((all ?? []).map((p: { url: string }) => p.url))
     const h = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7)
     for (const r of rows) if (!r.photo_url) { const c = pool.get(r.category) ?? any; r.photo_url = c.length ? c[h(r.slug) % c.length] : null }

@@ -15,3 +15,6 @@ Para fatos vindos de fora: escreva em português, para o leitor brasileiro, com 
 
 ## Matéria completa (mais informação)
 Notas e matérias devem ter 180–300 palavras, nesta ordem: **o que aconteceu** (fato principal com números), **detalhes** (quem, onde, quando, valores, prazos), **contexto** (o que veio antes ou o dado comparável), **por que importa para a obra** (efeito para construtoras, engenheiros, fornecedores ou prefeituras) e **próximos passos** (se a fonte disser). Para itens do radar, leia o texto guardado em `nj_source_texts` (SQL) e use só os fatos, com palavras suas (sobreposição ≤ 20%). Preencha `facts` com 3 a 5 pontos curtos: o site os mostra como "Pontos principais". Sem fato novo, não encha o texto.
+
+## Volume e atualidade
+Meta: ~15 matérias por rodada grande (07:07, 12:07, 18:07) e até 4 notas nas rodadas rápidas (a cada 2 horas, 08h–20h). Priorize o que acabou de sair (últimas 3 horas) e as melhores notícias do setor para os destaques; fontes brasileiras e saneamento primeiro; mínimo de 3 de SP e 3 do DF por rodada grande. Toda matéria é texto próprio, com a fonte citada.
