@@ -18,10 +18,25 @@ if (refazer) {
   velhas = (cur ?? []).map((x) => x.photo_id)
   await db.from('nj_articles').update({ photo_id: null }).eq('status', 'publicado')
 }
+const taken = new Set()
+// Fotos rejeitadas (botão "imagem não combina" em /social): nunca mais usadas; a matéria volta para a fila.
+for (const b of (await db.from('nj_photo_blocklist').select('origin_url')).data ?? []) taken.add(b.origin_url)
+{
+  const { data: bad } = await db.from('nj_feedback').select('id,article_slug').eq('message', 'imagem_ruim').limit(50)
+  for (const f of bad ?? []) {
+    const { data: art } = await db.from('nj_articles').select('id,photo_id').eq('slug', f.article_slug).maybeSingle()
+    if (art?.photo_id) {
+      const { data: ph } = await db.from('nj_photos').select('origin_url').eq('id', art.photo_id).maybeSingle()
+      if (ph?.origin_url) await db.from('nj_photo_blocklist').upsert({ origin_url: ph.origin_url, reason: 'imagem_ruim' }, { onConflict: 'origin_url' })
+      await db.from('nj_articles').update({ photo_id: null }).eq('id', art.id)
+      if (ph?.origin_url) taken.add(ph.origin_url)
+    }
+    await db.from('nj_feedback').update({ message: 'imagem_ruim_tratada' }).eq('id', f.id)
+  }
+}
 let q = db.from('nj_articles').select('id,slug,category,title,photo_query,sources,entity_id').eq('status', 'publicado').is('photo_id', null).eq('is_placeholder', false).limit(60)
 const { data: arts, error } = await q
 if (error) { console.error(error.message); process.exit(1) }
-const taken = new Set()
 if (!refazer) for (const p of (await db.from('nj_photos').select('origin_url')).data ?? []) taken.add(p.origin_url)
 
 let ok = 0
@@ -37,11 +52,6 @@ for (const a of arts ?? []) {
       const found = (isAbstractStory(a.title) || ent.name.length <= 4) ? [] : (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && new RegExp(`\\b${ent.name.split(' ')[0].toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(p.text) && isSectorPhoto(p))
       if (found.length) chosen = { ...found[0], q: ent.name, kind: 'photo' }
     } catch (e) { console.log(`  entidade "${ent.name}": ${e}`) }
-    if (!chosen) {
-      let logo = ent.logo_url ? { url: ent.logo_url, origin_url: ent.site ?? ent.logo_url, license: 'logo (uso editorial)' } : null
-      if (!logo) { try { logo = await searchLogo(ent.name) } catch {} ; if (logo) await db.from('nj_entities').update({ logo_url: logo.url }).eq('id', ent.id) }
-      if (logo) chosen = { ...logo, credit: ent.name, q: `logo ${ent.name}`, kind: 'logo' }
-    }
   }
   // 3) foto do MESMO assunto (grupo) e com termos em comum; matéria brasileira não usa foto estrangeira. Sem tema genérico.
   const group = topicGroup(a.title, a.photo_query ?? '')
@@ -57,6 +67,13 @@ for (const a of arts ?? []) {
     await new Promise((r) => setTimeout(r, 1200))
   }
   // 4) sem foto fiel ao assunto: logo da entidade ou, na falta, logo do veículo/órgão citado como fonte (nunca foto aleatória)
+  if (!chosen && ent) {
+    {
+      let logo = ent.logo_url ? { url: ent.logo_url, origin_url: ent.site ?? ent.logo_url, license: 'logo (uso editorial)' } : null
+      if (!logo) { try { logo = await searchLogo(ent.name) } catch {} ; if (logo) await db.from('nj_entities').update({ logo_url: logo.url }).eq('id', ent.id) }
+      if (logo) chosen = { ...logo, credit: ent.name, q: `logo ${ent.name}`, kind: 'logo' }
+    }
+  }
   if (!chosen) {
     const srcUrl = (a.sources ?? [])[0]?.url
     let site = ent?.site
@@ -65,7 +82,7 @@ for (const a of arts ?? []) {
     if (url) chosen = { url, origin_url: site, license: 'logo (uso editorial)', credit: ent?.name ?? (a.sources?.[0]?.name ?? ''), q: `logo ${site}`, kind: 'logo' }
   }
   if (!chosen) { console.log(`[SEM FOTO] ${a.slug}`); continue }
-  const { data: ph, error: e1 } = await db.from('nj_photos').insert({ theme: chosen.q, url: chosen.url, origin_url: chosen.origin_url, license: chosen.license, credit: chosen.credit, has_people: false, has_logos: false, license_verified: true, kind: chosen.kind ?? 'photo' }).select('id').single()
+  const { data: ph, error: e1 } = await db.from('nj_photos').insert({ theme: chosen.q, url: chosen.url, origin_url: chosen.origin_url, license: chosen.license, credit: chosen.credit, has_people: false, has_logos: false, license_verified: true, kind: chosen.kind ?? 'photo', description: (chosen.text ?? '').slice(0, 400) }).select('id').single()
   if (e1) { console.log(`[ERRO] ${a.slug}: ${e1.message}`); continue }
   await db.from('nj_articles').update({ photo_id: ph.id }).eq('id', a.id)
   taken.add(chosen.origin_url); ok++

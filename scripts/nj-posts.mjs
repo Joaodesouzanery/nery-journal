@@ -11,7 +11,7 @@ const db = createClient(url, key, { auth: { persistSession: false } })
 const { data } = await db.from('nj_articles').select('slug,title,body_md,social_at').not('social_at', 'is', null).gte('social_at', new Date(Date.now() - 3 * 86400000).toISOString()).order('social_at', { ascending: false }).limit(14)
 let n = 0
 for (const a of data ?? []) {
-  const slides = slidesFrom(a.body_md).length
+  const slides = slidesFrom(a.body_md, 3, 55).length
   const parts = [['0', '01-capa'], ...Array.from({ length: slides }, (_, i) => [String(i + 1), `${String(i + 2).padStart(2, '0')}-slide${i + 1}`]), ['cta', `${String(slides + 2).padStart(2, '0')}-final`]]
   mkdirSync(`social/${a.slug}`, { recursive: true })
   for (const [s, name] of parts) {

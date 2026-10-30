@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { slidesFrom } from '@/lib/social'
+import PhotoReject from '@/components/PhotoReject'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Posts do dia', robots: { index: false, follow: false } }
@@ -16,11 +17,12 @@ export default async function Social() {
       <p className="lead">Matérias escolhidas para Instagram e LinkedIn. Abra cada imagem, salve e poste na ordem: capa, slides de texto e último slide.</p>
       {rows.length === 0 && <div className="disclosure">Nenhuma matéria marcada ainda. As escolhas do dia aparecem aqui (5 a 7 por dia).</div>}
       {rows.map((r) => {
-        const n = slidesFrom(r.body_md).length
+        const n = slidesFrom(r.body_md, 3, 55).length
         const imgs = [['0', 'Capa'], ...Array.from({ length: n }, (_, i) => [String(i + 1), `Slide ${i + 1}`]), ['cta', 'Último']]
         return (
           <section key={r.slug} className="home-sec">
             <h2 className="h2" style={{ fontSize: 22 }}>{r.title}</h2>
+            <p><PhotoReject slug={r.slug} /></p>
             <div style={{ display: 'flex', gap: 12, overflowX: 'auto' }}>
               {imgs.map(([s, label]) => (
                 <a key={s} href={`/card/${r.slug}?s=${s}`} target="_blank" rel="noopener noreferrer" style={{ flex: '0 0 200px', textDecoration: 'none' }}>

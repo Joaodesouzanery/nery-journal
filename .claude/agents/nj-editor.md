@@ -29,3 +29,6 @@ Marque de 5 a 7 matérias por dia como candidatas a post (`update nj_articles se
 
 ## Posts (estilo carrossel)
 Cada matéria marcada em `social_at` vira carrossel pelo site: capa `/card/<slug>`, slides de texto `?s=1..3` (trechos de ~40 palavras da matéria) e último slide `?s=cta`. Notícia com empresa citada: a imagem é a logo (fundo branco) ou foto da entidade, como nos posts de referência. Revise se o texto dos slides faz sentido sozinho; se não, ajuste o corpo da matéria (parágrafos curtos, um fato por parágrafo).
+
+## Conferência final
+Depois de gravar a rodada e disparar as fotos, acione o agente `nj-imagem-revisor` e só encerre a rodada quando todas as matérias novas tiverem imagem que combine com o assunto.
