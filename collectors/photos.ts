@@ -7,7 +7,7 @@ const FREE = /^(cc0|cc[- ]?zero|public domain|pd[- ]|pdm|no restrictions|copyrig
 const BANNED = /\b(logo|map|mapa|diagram|flag|bandeira|poster|portrait|retrato|people|person|crowd|protest|manifesta\w*|svg|screenshot|icon|chart|gr[aá]fico|child|children|woman|man|worker\w*|soldier\w*|president|minister|navy|naval|army|military|soldier|sailor|meeting|conference|ceremony|visit|visits|officials?|commander|staff|employees?|volunteers?|students?|tray|bucket|laboratory|lab|sample|samples|kitchen|office|room|interior)\b/i
 
 /** Gravuras, desenhos, fotos históricas e digitalizações: não servem como foto de notícia atual. */
-const OLD_OR_ART = /\b(engraving|drawing|painting|illustration|lithograph\w*|sketch|vintage|historic\w*|postcard|scan(ned)?|newspaper|journal|magazine|woodcut|etching|archive\w*|museum|(1[0-8]\d\d|19[0-7]\d))\b/i
+const OLD_OR_ART = /\b(engraving|drawing|painting|illustration|lithograph\w*|sketch|vintage|historic\w*|postcard|scan(ned)?|newspaper|journal|magazine|woodcut|etching|archive\w*|museum|(1[0-8]\d\d|19\d\d|200[0-5]))\b/i
 
 export const THEME_QUERIES: Record<string, string[]> = {
   saneamento: ['sewage treatment plant', 'water treatment plant', 'water pipeline construction', 'wastewater tank aerial'],
@@ -204,4 +204,22 @@ export async function siteLogo(site: string): Promise<string | null> {
       ?? pick(/<meta[^>]+property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ?? pick(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["']/i)
     return href ? new URL(href, site).toString() : null
   } catch { return null }
+}
+
+// ---------------------------------------------------------------------------
+// Pexels (licença gratuita, sem exigência de crédito): fotos de ótima qualidade e bem pesquisáveis. Requer PEXELS_API_KEY (grátis).
+// ---------------------------------------------------------------------------
+export interface StockPhoto { url: string; origin_url: string; license: string; credit: string; width: number; height: number; text: string }
+const PEOPLE = /\b(man|men|woman|women|people|person|portrait|smiling|team|group|businessm\w+|girl|boy|child\w*|family|couple|selfie|crowd|worker|workers|engineer|engineers|meeting|office|laptop)\b/i
+
+export async function searchPexels(query: string, key: string): Promise<StockPhoto[]> {
+  const u = new URL('https://api.pexels.com/v1/search')
+  u.search = new URLSearchParams({ query, per_page: '30', orientation: 'landscape', size: 'large' }).toString()
+  const res = await fetch(u, { headers: { authorization: key }, signal: AbortSignal.timeout(20000) })
+  if (!res.ok) throw new Error(`Pexels HTTP ${res.status}`)
+  const body = (await res.json()) as { photos?: { id: number; url: string; width: number; height: number; alt?: string; photographer?: string; src: { large2x?: string; large?: string } }[] }
+  return (body.photos ?? [])
+    .filter((p) => p.width >= 1600 && p.width >= p.height * 1.3 && !PEOPLE.test(p.alt ?? ''))
+    .map((p) => ({ url: p.src.large2x ?? p.src.large ?? '', origin_url: p.url, license: 'Pexels License', credit: p.photographer ?? 'Pexels', width: p.width, height: p.height, text: `${query} ${(p.alt ?? '').toLowerCase()}` }))
+    .filter((p) => p.url)
 }

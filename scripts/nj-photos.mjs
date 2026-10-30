@@ -1,7 +1,7 @@
 // Liga fotos reais de licença livre (CC0/domínio público, sem exigência de crédito) às matérias publicadas sem foto.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Fonte: Wikimedia Commons. Nunca usa fotos dos veículos.
 import { createClient } from '@supabase/supabase-js'
-import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo } from '../collectors/photos.ts'
+import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels } from '../collectors/photos.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -40,6 +40,7 @@ if (error) { console.error(error.message); process.exit(1) }
 if (!refazer) for (const p of (await db.from('nj_photos').select('origin_url')).data ?? []) taken.add(p.origin_url)
 
 let ok = 0
+const PEXELS = process.env.PEXELS_API_KEY
 const { data: entsData } = await db.from('nj_entities').select('id,name,aliases,country,logo_url,site')
 const ents = entsData ?? []
 for (const a of arts ?? []) {
@@ -52,6 +53,16 @@ for (const a of arts ?? []) {
       const found = (isAbstractStory(a.title) || ent.name.length <= 4) ? [] : (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && new RegExp(`\\b${ent.name.split(' ')[0].toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(p.text) && isSectorPhoto(p))
       if (found.length) chosen = { ...found[0], q: ent.name, kind: 'photo' }
     } catch (e) { console.log(`  entidade "${ent.name}": ${e}`) }
+  }
+  // 2b) Pexels (se houver chave): foto bonita e bem ranqueada para a consulta específica, sem pessoas; alt não pode ser de outro assunto
+  const grp = topicGroup(a.title, a.photo_query ?? '')
+  const spec = [...new Set([...(a.photo_query ? [a.photo_query] : []), ...queriesFromTitle(a.title)])]
+  if (!chosen && PEXELS && !isAbstractStory(a.title)) for (const q of spec) {
+    try {
+      const found = (await searchPexels(q, PEXELS)).filter((p) => !taken.has(p.origin_url) && (!p.text || photoInGroup({ text: p.text }, grp)))
+      if (found.length) { chosen = { ...found[0], q, kind: 'photo' }; break }
+    } catch (e) { console.log(`  pexels "${q}": ${e}`) }
+    await new Promise((r) => setTimeout(r, 600))
   }
   // 3) foto do MESMO assunto (grupo) e com termos em comum; matéria brasileira não usa foto estrangeira. Sem tema genérico.
   const group = topicGroup(a.title, a.photo_query ?? '')
