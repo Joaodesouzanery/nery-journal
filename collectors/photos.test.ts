@@ -62,3 +62,12 @@ test('foto do setor e matéria abstrata', () => {
   assert.equal(isAbstractStory('Investimento em capital fixo no Brasil foi de 16,8% do PIB'), true)
   assert.equal(isAbstractStory('DNIT abre pregão de R$ 210 milhões para recuperar a BR-267'), false)
 })
+
+import { topicGroup, photoInGroup } from './photos.ts'
+test('grupo do assunto: água não recebe foto de aeroporto', () => {
+  assert.equal(topicGroup('ANA identifica 878 municípios do Sul com risco de inundações e enxurradas', 'flooded street drainage'), 'agua')
+  assert.equal(photoInGroup({ text: 'airport apron runway aircraft terminal' }, 'agua'), false)
+  assert.equal(photoInGroup({ text: 'flooded street after heavy rain drainage' }, 'agua'), true)
+  assert.equal(topicGroup('Ultracargo amplia terminal de Suape'), 'porto')
+  assert.equal(photoInGroup({ text: 'tunnel construction site' }, 'porto'), false)
+})

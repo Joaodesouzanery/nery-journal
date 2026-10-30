@@ -80,13 +80,7 @@ export async function getArticles(limit = 30): Promise<ArticleRow[]> {
       const byId = new Map((photos ?? []).map((p: { id: string; url: string; kind: string }) => [p.id, p]))
       for (const r of rows) { const ph = r.photo_id ? byId.get(r.photo_id) : undefined; r.photo_url = ph?.url ?? null; r.photo_kind = ph?.kind === 'logo' ? 'logo' : 'photo' }
     }
-    // Nunca sem imagem: matéria sem foto própria recebe uma foto do mesmo assunto, escolhida entre as já ligadas a outras matérias.
-    const { data: all } = await db.from('nj_photos').select('id,url').eq('license_verified', true).eq('kind', 'photo').limit(200)
-    const pool = new Map<string, string[]>()
-    for (const r of rows) if (r.photo_url && r.photo_kind !== 'logo') pool.set(r.category, [...(pool.get(r.category) ?? []), r.photo_url])
-    const any = [...pool.values()].flat().concat((all ?? []).map((p: { url: string }) => p.url))
-    const h = (s: string) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7)
-    for (const r of rows) if (!r.photo_url) { const c = pool.get(r.category) ?? any; r.photo_url = c.length ? c[h(r.slug) % c.length] : null }
+    // Sem foto fiel ao assunto, o script usa a logo da entidade/fonte; nunca foto aleatória.
     return rows
   } catch {
     return PLACEHOLDERS

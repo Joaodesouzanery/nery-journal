@@ -313,3 +313,6 @@ a { color: inherit; }
 .report { max-width: 780px; margin: 0 auto; padding: 24px 20px; } .report h2 { font-size: 18px; border-bottom: 2px solid #1a7aa8; padding-bottom: 4px; margin: 22px 0 8px; }
 .rep-head { display: flex; justify-content: space-between; border-bottom: 3px solid #111; padding-bottom: 10px; } .report table { width: 100%; border-collapse: collapse; font-size: 13px; } .report th, .report td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #ddd; vertical-align: top; }
 @media print { .header, .footer, .topad, .notice, .feedback, .bar, .gate, .noprint { display: none !important; } .report { padding: 0; } @page { size: A4; margin: 14mm; } }
+
+.gate-box { position: relative; } .gate-x { position: absolute; top: 8px; right: 12px; border: 0; background: none; font-size: 28px; line-height: 1; cursor: pointer; color: #555; }
+.gate { backdrop-filter: none; background: rgba(8,16,22,.55); }

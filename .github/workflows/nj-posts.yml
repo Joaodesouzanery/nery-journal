@@ -1,0 +1,29 @@
+name: nj-posts
+# Gera os cards (PNG) do carrossel das matérias marcadas para redes sociais e salva em social/ no repositório.
+on:
+  push:
+    paths: ['.github/triggers/posts']
+  schedule:
+    - cron: '50 11,13,15,17,19,21,23 * * *'   # 10 min depois das fotos
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  posts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/nj-posts.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - name: Salva os cards no repositório
+        run: |
+          git config user.name "nery-journal-bot"
+          git config user.email "neryadministrativo@gmail.com"
+          git add social
+          git diff --cached --quiet || (git commit -m "Cards do dia" && git pull --rebase origin main && git push)

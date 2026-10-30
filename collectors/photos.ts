@@ -156,3 +156,52 @@ const SECTOR = /\b(construction|building|bridge|road|highway|asphalt|pavement|cr
 export const isSectorPhoto = (photo: { text: string }) => SECTOR.test(photo.text)
 /** Matéria de dado/política/gestão (sem cena física): prefere a logo da entidade a uma foto aleatória. */
 export const isAbstractStory = (title: string) => /\b(PIB|juros|Selic|[ií]ndice|capital fixo|infla[cç][aã]o|IPCA|INCC|SINAPI|projeto de lei|intelig[eê]ncia artificial|distrato|zoneamento|jur[ií]dic\w*|bilh[oõ]es? para|relat[oó]rio|pesquisa|dificuldade financeira|estrat[eé]gia)\b/i.test(title)
+
+// ---------------------------------------------------------------------------
+// Assunto da matéria × assunto da foto: a foto só vale se for do MESMO grupo (água não recebe avião, estrada não recebe aterro).
+// ---------------------------------------------------------------------------
+const GROUPS: [string, RegExp][] = [
+  ['agua', /\b(water|sewage|sewer|wastewater|drain\w*|flood\w*|river|dam|reservoir|pipeline|pipe|pipes|sanitation|treatment plant|stormwater|culvert|[aá]gua|esgot\w*|inunda\w*|enchente\w*|enxurrada\w*|drenagem|saneamento|ETE|ETA|adutora)\b/i],
+  ['residuos', /\b(landfill|waste|recycling|garbage|res[ií]duos?|aterro|lixo|limpeza urbana)\b/i],
+  ['rodovia', /\b(road|highway|asphalt|pavement|paving|bridge|viaduct|traffic|rodovia|estrada|paviment\w*|asfalt\w*|ponte|viaduto|BR-\d+)\b/i],
+  ['ferrovia', /\b(railway|rail|railroad|train|locomotive|ferrovia\w*|trem|metr[oô])\b/i],
+  ['porto', /\b(port|harbou?r|container|dock|quay|terminal portu\w*|porto|portu[aá]ri\w*|dragagem|Suape|Itaja[ií])\b/i],
+  ['aeroporto', /\b(airport|runway|aircraft|airplane|aeroporto|pista)\b/i],
+  ['energia', /\b(power|transmission|substation|grid|electric\w*|turbine|wind|solar|energia|transmiss[aã]o|subesta[cç][aã]o|leil[aã]o de transmiss[aã]o|el[eé]trica)\b/i],
+  ['habitacao', /\b(housing|apartment|residential|homes?|house|moradi\w*|habita\w*|casa|apartamento|condom[ií]nio|incorpora\w*|FGTS)\b/i],
+  ['obra', /\b(construction|building|crane|excavat\w*|scaffold\w*|concrete|steel|skyscraper|obra\w*|constru\w+|canteiro)\b/i],
+]
+
+/** Grupo do assunto, a partir do título (PT) e da consulta (EN). */
+export function topicGroup(...texts: string[]): string | null {
+  const t = texts.join(' ')
+  for (const [g, re] of GROUPS) if (re.test(t)) return g
+  return null
+}
+
+/** A foto é do grupo do assunto? Quando o grupo é "obra", qualquer foto de obra serve, mas nunca de outro assunto específico. */
+export function photoInGroup(photo: { text: string }, group: string | null): boolean {
+  if (!group) return isSectorPhoto(photo)
+  const mine = GROUPS.find(([g]) => g === group)![1]
+  if (!mine.test(photo.text)) return false
+  // rejeita foto que pertence claramente a outro assunto específico (ex.: aeroporto em matéria de água)
+  for (const [g, re] of GROUPS) if (g !== group && g !== 'obra' && re.test(photo.text) && !(group === 'obra')) {
+    const mineHits = (photo.text.match(new RegExp(mine.source, 'gi')) ?? []).length
+    const otherHits = (photo.text.match(new RegExp(re.source, 'gi')) ?? []).length
+    if (otherHits > mineHits) return false
+  }
+  return true
+}
+
+/** Logo do site de uma entidade/veículo: <link rel="apple-touch-icon"> ou og:image da página inicial. */
+export async function siteLogo(site: string): Promise<string | null> {
+  try {
+    const res = await fetch(site, { headers: { 'user-agent': 'nery-journal-photos/0.1 (+https://github.com/Joaodesouzanery/nery-journal)' }, signal: AbortSignal.timeout(15000) })
+    if (!res.ok) return null
+    const html = await res.text()
+    const pick = (re: RegExp) => re.exec(html)?.[1]
+    const href = pick(/<link[^>]+rel=["'][^"']*apple-touch-icon[^"']*["'][^>]*href=["']([^"']+)["']/i) ?? pick(/<link[^>]+href=["']([^"']+)["'][^>]*rel=["'][^"']*apple-touch-icon/i)
+      ?? pick(/<meta[^>]+property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ?? pick(/<link[^>]+rel=["'][^"']*icon[^"']*["'][^>]*href=["']([^"']+)["']/i)
+    return href ? new URL(href, site).toString() : null
+  } catch { return null }
+}

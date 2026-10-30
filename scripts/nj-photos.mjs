@@ -1,7 +1,7 @@
 // Liga fotos reais de licença livre (CC0/domínio público, sem exigência de crédito) às matérias publicadas sem foto.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Fonte: Wikimedia Commons. Nunca usa fotos dos veículos.
 import { createClient } from '@supabase/supabase-js'
-import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory } from '../collectors/photos.ts'
+import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo } from '../collectors/photos.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -43,19 +43,26 @@ for (const a of arts ?? []) {
       if (logo) chosen = { ...logo, credit: ent.name, q: `logo ${ent.name}`, kind: 'logo' }
     }
   }
-  // 3) assunto do Brasil (matéria brasileira nunca usa foto de lugar/empresa estrangeira); 4) tema genérico
-  const qs = photoQueries(a.category, a.photo_query, a.title)
-  const tiers = br ? [...qs.slice(0, -1).map((q) => `${q} Brazil`), ...qs] : qs
-  if (!chosen) for (const [i, q] of tiers.entries()) {
+  // 3) foto do MESMO assunto (grupo) e com termos em comum; matéria brasileira não usa foto estrangeira. Sem tema genérico.
+  const group = topicGroup(a.title, a.photo_query ?? '')
+  const specific = [...new Set([...(a.photo_query ? [a.photo_query] : []), ...queriesFromTitle(a.title)])]
+  const tiers = br ? [...specific.map((q) => `${q} Brazil`), ...specific] : specific
+  if (!chosen && !isAbstractStory(a.title)) for (const q of tiers) {
     try {
-      let found = (await searchCommons(q)).filter((p) => !taken.has(p.origin_url))
-      found = found.filter(isSectorPhoto)
+      let found = (await searchCommons(q)).filter((p) => !taken.has(p.origin_url) && photoInGroup(p, group))
       if (br) found = found.filter((p) => !isForeignPhoto(p))
-      const last = i === tiers.length - 1
-      const best = bestPhoto(q.replace(/ Brazil$/, ''), found, last ? 0 : undefined)
+      const best = bestPhoto(q.replace(/ Brazil$/, ''), found)
       if (best) { chosen = { ...best, q, kind: 'photo' }; break }
     } catch (e) { console.log(`  busca "${q}": ${e}`) }
     await new Promise((r) => setTimeout(r, 1200))
+  }
+  // 4) sem foto fiel ao assunto: logo da entidade ou, na falta, logo do veículo/órgão citado como fonte (nunca foto aleatória)
+  if (!chosen) {
+    const srcUrl = (a.sources ?? [])[0]?.url
+    let site = ent?.site
+    if (!site && srcUrl) { try { site = new URL(srcUrl).origin } catch {} }
+    const url = site ? await siteLogo(site) : null
+    if (url) chosen = { url, origin_url: site, license: 'logo (uso editorial)', credit: ent?.name ?? (a.sources?.[0]?.name ?? ''), q: `logo ${site}`, kind: 'logo' }
   }
   if (!chosen) { console.log(`[SEM FOTO] ${a.slug}`); continue }
   const { data: ph, error: e1 } = await db.from('nj_photos').insert({ theme: chosen.q, url: chosen.url, origin_url: chosen.origin_url, license: chosen.license, credit: chosen.credit, has_people: false, has_logos: false, license_verified: true, kind: chosen.kind ?? 'photo' }).select('id').single()
