@@ -34,7 +34,7 @@ for (const a of arts ?? []) {
   // 1) foto livre da própria entidade; 2) logo da entidade
   if (ent) {
     try {
-      const found = isAbstractStory(a.title) ? [] : (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && p.text.includes(ent.name.toLowerCase().split(' ')[0]) && isSectorPhoto(p))
+      const found = (isAbstractStory(a.title) || ent.name.length <= 4) ? [] : (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && new RegExp(`\\b${ent.name.split(' ')[0].toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(p.text) && isSectorPhoto(p))
       if (found.length) chosen = { ...found[0], q: ent.name, kind: 'photo' }
     } catch (e) { console.log(`  entidade "${ent.name}": ${e}`) }
     if (!chosen) {
