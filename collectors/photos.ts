@@ -65,8 +65,10 @@ export function relevance(query: string, photo: { text: string }): number {
 }
 
 /** Melhor foto para a consulta: maior correlação; empate por tamanho. `min` = correlação mínima aceita. */
-export function bestPhoto<T extends { text: string; width: number }>(query: string, photos: T[], min = 1): T | null {
-  const ranked = photos.map((p) => ({ p, r: relevance(query, p) })).filter((x) => x.r >= min)
+export function bestPhoto<T extends { text: string; width: number }>(query: string, photos: T[], min?: number): T | null {
+  // Sem mínimo explícito: exige até 2 termos em comum (ou todos os termos específicos, se a consulta tiver menos de 2).
+  const need = min ?? Math.min(2, tokens(query).length)
+  const ranked = photos.map((p) => ({ p, r: relevance(query, p) })).filter((x) => x.r >= need)
     .sort((a, b) => b.r - a.r || b.p.width - a.p.width)
   return ranked[0]?.p ?? null
 }

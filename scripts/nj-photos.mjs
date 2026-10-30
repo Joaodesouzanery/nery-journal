@@ -52,7 +52,7 @@ for (const a of arts ?? []) {
       found = found.filter(isSectorPhoto)
       if (br) found = found.filter((p) => !isForeignPhoto(p))
       const last = i === tiers.length - 1
-      const best = bestPhoto(q.replace(/ Brazil$/, ''), found, last ? 1 : 2)
+      const best = bestPhoto(q.replace(/ Brazil$/, ''), found, last ? 0 : undefined)
       if (best) { chosen = { ...best, q, kind: 'photo' }; break }
     } catch (e) { console.log(`  busca "${q}": ${e}`) }
     await new Promise((r) => setTimeout(r, 1200))

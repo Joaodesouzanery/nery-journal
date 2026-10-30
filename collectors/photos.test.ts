@@ -39,6 +39,8 @@ test('consultas do título e correlação da foto', () => {
   assert.equal(relevance('landfill waste facility', b), 2)
   assert.equal(bestPhoto('landfill waste facility', [a, b]), b)
   assert.equal(bestPhoto('landfill waste facility', [a]), null)
+  assert.ok(bestPhoto('construction site', [a], 0))
+  assert.ok(bestPhoto('construction site', [a]))
 })
 
 import { matchEntity, isBrazilStory, isForeignPhoto } from './photos.ts'
