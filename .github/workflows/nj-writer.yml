@@ -1,0 +1,24 @@
+name: nj-writer
+# Redator automático fora do chat: a cada rodada escreve notas próprias dos itens novos (precisa do secret ANTHROPIC_API_KEY).
+on:
+  push:
+    paths: ['.github/triggers/writer']
+  schedule:
+    - cron: '10 10,15,21 * * *'            # 07:10, 12:10, 18:10 (Brasília): rodadas grandes
+    - cron: '25 11,13,17,19,23 * * *'      # rodadas rápidas, a cada ~2 h
+  workflow_dispatch:
+jobs:
+  writer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/nj-writer.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          NJ_MAX: ${{ github.event.schedule == '10 10,15,21 * * *' && '10' || '4' }}
