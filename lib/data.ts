@@ -70,6 +70,7 @@ export async function getArticles(limit = 30): Promise<ArticleRow[]> {
   if (!db) return PLACEHOLDERS
   try {
     const { data, error } = await db.from('nj_articles').select(COLS).eq('sector', 'construcao')
+      .not('photo_id', 'is', null) // trava real: matéria sem imagem não aparece no site
       .order('published_at', { ascending: false }).limit(limit)
     if (error || !data || data.length === 0) return PLACEHOLDERS
     const rows = data as (ArticleRow & { photo_id?: string | null })[]

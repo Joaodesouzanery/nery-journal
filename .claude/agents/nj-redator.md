@@ -18,3 +18,5 @@ Notas e matérias devem ter 180–300 palavras, nesta ordem: **o que aconteceu**
 
 ## Volume e atualidade
 Meta: ~15 matérias por rodada grande (07:07, 12:07, 18:07) e até 4 notas nas rodadas rápidas (a cada 2 horas, 08h–20h). Priorize o que acabou de sair (últimas 3 horas) e as melhores notícias do setor para os destaques; fontes brasileiras e saneamento primeiro; mínimo de 3 de SP e 3 do DF por rodada grande. Toda matéria é texto próprio, com a fonte citada.
+
+> Escopo: ver .claude/agents/_escopo.md — só Construção, Engenharia e Saneamento; descarte o resto.

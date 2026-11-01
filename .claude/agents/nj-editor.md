@@ -32,3 +32,5 @@ Cada matéria marcada em `social_at` vira carrossel pelo site: capa `/card/<slug
 
 ## Conferência final
 Depois de gravar a rodada e disparar as fotos, acione o agente `nj-imagem-revisor` e só encerre a rodada quando todas as matérias novas tiverem imagem que combine com o assunto.
+
+> Escopo: ver .claude/agents/_escopo.md — só Construção, Engenharia e Saneamento; descarte o resto.
