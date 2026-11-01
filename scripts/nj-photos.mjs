@@ -1,7 +1,7 @@
 // Liga fotos reais de licença livre (CC0/domínio público, sem exigência de crédito) às matérias publicadas sem foto.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Fonte: Wikimedia Commons. Nunca usa fotos dos veículos.
 import { createClient } from '@supabase/supabase-js'
-import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels } from '../collectors/photos.ts'
+import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels, groupQueries } from '../collectors/photos.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -46,7 +46,7 @@ const ents = entsData ?? []
 for (const a of arts ?? []) {
   let chosen = null
   const br = isBrazilStory(a.sources ?? [])
-  const ent = (a.entity_id && ents.find((e) => e.id === a.entity_id)) || matchEntity(`${a.title} ${(a.sources ?? []).map((x) => x.name).join(' ')}`, ents)
+  const ent = (a.entity_id && ents.find((e) => e.id === a.entity_id)) || matchEntity(a.title, ents)
   // 1) foto livre da própria entidade; 2) logo da entidade
   if (ent) {
     try {
@@ -77,20 +77,25 @@ for (const a of arts ?? []) {
     } catch (e) { console.log(`  busca "${q}": ${e}`) }
     await new Promise((r) => setTimeout(r, 1200))
   }
-  // 4) sem foto fiel ao assunto: logo da entidade ou, na falta, logo do veículo/órgão citado como fonte (nunca foto aleatória)
-  if (!chosen && ent) {
-    {
-      let logo = ent.logo_url ? { url: ent.logo_url, origin_url: ent.site ?? ent.logo_url, license: 'logo (uso editorial)' } : null
-      if (!logo) { try { logo = await searchLogo(ent.name) } catch {} ; if (logo) await db.from('nj_entities').update({ logo_url: logo.url }).eq('id', ent.id) }
-      if (logo) chosen = { ...logo, credit: ent.name, q: `logo ${ent.name}`, kind: 'logo' }
+  // 3b) foto genérica do MESMO assunto (grupo), sem mínimo de termos; primeiro as ainda não usadas, depois (último recurso) qualquer uma
+  for (const reuse of [false, true]) {
+    if (chosen) break
+    for (const q of groupQueries(group)) {
+      try {
+        let found = (await searchCommons(q)).filter((p) => (reuse || !taken.has(p.origin_url)) && photoInGroup(p, group))
+        if (br) found = found.filter((p) => !isForeignPhoto(p))
+        const pick = found[Math.floor(Math.random() * Math.min(found.length, 4))]
+        if (pick) { chosen = { ...pick, q, kind: 'photo' }; break }
+      } catch (e) { console.log(`  grupo "${q}": ${e}`) }
+      await new Promise((r) => setTimeout(r, 1000))
     }
   }
-  if (!chosen) {
-    const srcUrl = (a.sources ?? [])[0]?.url
-    let site = ent?.site
-    if (!site && srcUrl) { try { site = new URL(srcUrl).origin } catch {} }
-    const url = site ? await siteLogo(site) : null
-    if (url) chosen = { url, origin_url: site, license: 'logo (uso editorial)', credit: ent?.name ?? (a.sources?.[0]?.name ?? ''), q: `logo ${site}`, kind: 'logo' }
+  // 4) logo SÓ quando a matéria é sobre a entidade e nada de foto serviu (nunca logo do veículo)
+  if (!chosen && ent) {
+    let logo = ent.logo_url ? { url: ent.logo_url, origin_url: ent.site ?? ent.logo_url, license: 'logo (uso editorial)' } : null
+    if (!logo) { try { logo = await searchLogo(ent.name) } catch {} ; if (logo) await db.from('nj_entities').update({ logo_url: logo.url }).eq('id', ent.id) }
+    if (!logo && ent.site) { const u = await siteLogo(ent.site); if (u) logo = { url: u, origin_url: ent.site, license: 'logo (uso editorial)' } }
+    if (logo) chosen = { ...logo, credit: ent.name, q: `logo ${ent.name}`, kind: 'logo' }
   }
   if (!chosen) { console.log(`[SEM FOTO] ${a.slug}`); continue }
   const { data: ph, error: e1 } = await db.from('nj_photos').insert({ theme: chosen.q, url: chosen.url, origin_url: chosen.origin_url, license: chosen.license, credit: chosen.credit, has_people: false, has_logos: false, license_verified: true, kind: chosen.kind ?? 'photo', description: (chosen.text ?? '').slice(0, 400) }).select('id').single()

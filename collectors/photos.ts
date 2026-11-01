@@ -223,3 +223,17 @@ export async function searchPexels(query: string, key: string): Promise<StockPho
     .map((p) => ({ url: p.src.large2x ?? p.src.large ?? '', origin_url: p.url, license: 'Pexels License', credit: p.photographer ?? 'Pexels', width: p.width, height: p.height, text: `${query} ${(p.alt ?? '').toLowerCase()}` }))
     .filter((p) => p.url)
 }
+
+/** Consultas genéricas do MESMO assunto (grupo), usadas quando a consulta específica não acha foto boa. Nunca logo de veículo. */
+export const GROUP_QUERIES: Record<string, string[]> = {
+  agua: ['water treatment plant', 'sewage treatment plant', 'water pipeline construction', 'flooded street drainage', 'river dam reservoir'],
+  residuos: ['landfill waste facility', 'recycling plant'],
+  rodovia: ['highway road construction', 'asphalt road paving', 'bridge construction', 'road tunnel'],
+  ferrovia: ['railway track', 'train railway construction'],
+  porto: ['port container terminal cranes', 'harbour cranes'],
+  aeroporto: ['airport terminal construction', 'airport runway'],
+  energia: ['power transmission towers', 'electrical substation', 'wind turbines', 'solar panels field', 'hydroelectric dam'],
+  habitacao: ['housing development construction', 'apartment buildings construction', 'residential buildings'],
+  obra: ['construction site crane', 'building under construction', 'skyscraper construction', 'concrete construction'],
+}
+export const groupQueries = (g: string | null): string[] => GROUP_QUERIES[g ?? 'obra'] ?? GROUP_QUERIES.obra

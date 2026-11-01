@@ -20,3 +20,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      - name: Trava final (nenhuma matéria sem imagem)
+        if: ${{ !cancelled() }}
+        run: node scripts/nj-check-imagens.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
