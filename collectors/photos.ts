@@ -237,3 +237,10 @@ export const GROUP_QUERIES: Record<string, string[]> = {
   obra: ['construction site crane', 'building under construction', 'skyscraper construction', 'concrete construction'],
 }
 export const groupQueries = (g: string | null): string[] => GROUP_QUERIES[g ?? 'obra'] ?? GROUP_QUERIES.obra
+
+/** Lugar incompatível: matéria de país quente (Brasil, Oriente Médio, África, etc.) não usa foto com neve/inverno. */
+const HOT_PLACE = /\b(brasil|brazil|dubai|emirados|uae|arábia|arabia|catar|qatar|egito|egypt|índia|india|nordeste|sertão|amazônia|amazonia|[A-Z]{2}\))/i
+const COLD_PHOTO = /\b(snow\w*|winter|ice|icy|frozen|neve|inverno|gelo|ski)\b/i
+export function placeMismatch(storyText: string, photo: { text: string }, brazil = false): boolean {
+  return (brazil || HOT_PLACE.test(storyText)) && COLD_PHOTO.test(photo.text)
+}

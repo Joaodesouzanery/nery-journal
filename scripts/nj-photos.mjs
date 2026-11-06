@@ -1,7 +1,7 @@
 // Liga fotos reais de licença livre (CC0/domínio público, sem exigência de crédito) às matérias publicadas sem foto.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Fonte: Wikimedia Commons. Nunca usa fotos dos veículos.
 import { createClient } from '@supabase/supabase-js'
-import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels, groupQueries } from '../collectors/photos.ts'
+import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels, groupQueries, placeMismatch } from '../collectors/photos.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -34,6 +34,12 @@ for (const b of (await db.from('nj_photo_blocklist').select('origin_url')).data 
     await db.from('nj_feedback').update({ message: 'imagem_ruim_tratada' }).eq('id', f.id)
   }
 }
+// Nunca repetir foto em 30 dias: URLs já ligadas a matérias recentes ficam bloqueadas mesmo no "refazer".
+{
+  const since = new Date(Date.now() - 30 * 864e5).toISOString()
+  const { data: rec } = await db.from('nj_articles').select('photo:nj_photos(origin_url)').gte('published_at', since).not('photo_id', 'is', null)
+  for (const r of rec ?? []) if (r.photo?.origin_url) taken.add(r.photo.origin_url)
+}
 let q = db.from('nj_articles').select('id,slug,category,title,photo_query,sources,entity_id').eq('status', 'publicado').is('photo_id', null).eq('is_placeholder', false).limit(60)
 const { data: arts, error } = await q
 if (error) { console.error(error.message); process.exit(1) }
@@ -59,7 +65,7 @@ for (const a of arts ?? []) {
   const spec = [...new Set([...(a.photo_query ? [a.photo_query] : []), ...queriesFromTitle(a.title)])]
   if (!chosen && PEXELS && !isAbstractStory(a.title)) for (const q of spec) {
     try {
-      const found = (await searchPexels(q, PEXELS)).filter((p) => !taken.has(p.origin_url) && (!p.text || photoInGroup({ text: p.text }, grp)))
+      const found = (await searchPexels(q, PEXELS)).filter((p) => !taken.has(p.origin_url) && (!p.text || photoInGroup({ text: p.text }, grp)) && !placeMismatch(a.title, p, br))
       if (found.length) { chosen = { ...found[0], q, kind: 'photo' }; break }
     } catch (e) { console.log(`  pexels "${q}": ${e}`) }
     await new Promise((r) => setTimeout(r, 600))
@@ -70,7 +76,7 @@ for (const a of arts ?? []) {
   const tiers = br ? [...specific.map((q) => `${q} Brazil`), ...specific] : specific
   if (!chosen && !isAbstractStory(a.title)) for (const q of tiers) {
     try {
-      let found = (await searchCommons(q)).filter((p) => !taken.has(p.origin_url) && photoInGroup(p, group))
+      let found = (await searchCommons(q)).filter((p) => !taken.has(p.origin_url) && photoInGroup(p, group) && !placeMismatch(a.title, p, br))
       if (br) found = found.filter((p) => !isForeignPhoto(p))
       const best = bestPhoto(q.replace(/ Brazil$/, ''), found)
       if (best) { chosen = { ...best, q, kind: 'photo' }; break }
@@ -78,11 +84,20 @@ for (const a of arts ?? []) {
     await new Promise((r) => setTimeout(r, 1200))
   }
   // 3b) foto genérica do MESMO assunto (grupo), sem mínimo de termos; primeiro as ainda não usadas, depois (último recurso) qualquer uma
-  for (const reuse of [false, true]) {
-    if (chosen) break
+  // Pexels genérico do grupo primeiro; depois Commons. Nunca repete foto (sem foto, a matéria fica escondida).
+  if (!chosen && PEXELS) for (const q of groupQueries(group)) {
+    try {
+      const found = (await searchPexels(q, PEXELS)).filter((p) => !taken.has(p.origin_url) && !placeMismatch(a.title, p, br))
+      const pick = found[Math.floor(Math.random() * Math.min(found.length, 5))]
+      if (pick) { chosen = { ...pick, q, kind: 'photo' }; break }
+    } catch (e) { console.log(`  pexels grupo "${q}": ${e}`) }
+    await new Promise((r) => setTimeout(r, 600))
+  }
+  {
     for (const q of groupQueries(group)) {
+      if (chosen) break
       try {
-        let found = (await searchCommons(q)).filter((p) => (reuse || !taken.has(p.origin_url)) && photoInGroup(p, group))
+        let found = (await searchCommons(q)).filter((p) => !taken.has(p.origin_url) && photoInGroup(p, group) && !placeMismatch(a.title, p, br))
         if (br) found = found.filter((p) => !isForeignPhoto(p))
         const pick = found[Math.floor(Math.random() * Math.min(found.length, 4))]
         if (pick) { chosen = { ...pick, q, kind: 'photo' }; break }
