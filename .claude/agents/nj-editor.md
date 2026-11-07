@@ -34,3 +34,7 @@ Cada matéria marcada em `social_at` vira carrossel pelo site: capa `/card/<slug
 Depois de gravar a rodada e disparar as fotos, acione o agente `nj-imagem-revisor` e só encerre a rodada quando todas as matérias novas tiverem imagem que combine com o assunto.
 
 > Escopo: ver .claude/agents/_escopo.md — só Construção, Engenharia e Saneamento; descarte o resto.
+
+
+## Imagem antes de publicar (obrigatório)
+Antes de `status='publicado'`, chame o agente `nj-foto-conferencia` para a matéria. Sem imagem aprovada, grave `status='em_revisao', needs_photo=true` — nunca publique sem foto.

@@ -1,7 +1,7 @@
 // Liga fotos reais de licença livre (CC0/domínio público, sem exigência de crédito) às matérias publicadas sem foto.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Fonte: Wikimedia Commons. Nunca usa fotos dos veículos.
 import { createClient } from '@supabase/supabase-js'
-import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels, groupQueries, placeMismatch } from '../collectors/photos.ts'
+import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels, groupQueries, placeMismatch, newsQueries, imageLoads } from '../collectors/photos.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -16,7 +16,7 @@ let velhas = []
 if (refazer) {
   const { data: cur } = await db.from('nj_articles').select('photo_id').eq('status', 'publicado').not('photo_id', 'is', null)
   velhas = (cur ?? []).map((x) => x.photo_id)
-  await db.from('nj_articles').update({ photo_id: null }).eq('status', 'publicado')
+  await db.from('nj_articles').update({ status: 'em_revisao', needs_photo: true, photo_id: null }).eq('status', 'publicado')
 }
 const taken = new Set()
 // Fotos rejeitadas (botão "imagem não combina" em /social): nunca mais usadas; a matéria volta para a fila.
@@ -28,7 +28,7 @@ for (const b of (await db.from('nj_photo_blocklist').select('origin_url')).data 
     if (art?.photo_id) {
       const { data: ph } = await db.from('nj_photos').select('origin_url').eq('id', art.photo_id).maybeSingle()
       if (ph?.origin_url) await db.from('nj_photo_blocklist').upsert({ origin_url: ph.origin_url, reason: 'imagem_ruim' }, { onConflict: 'origin_url' })
-      await db.from('nj_articles').update({ photo_id: null }).eq('id', art.id)
+      await db.from('nj_articles').update({ status: 'em_revisao', needs_photo: true, photo_id: null }).eq('id', art.id)
       if (ph?.origin_url) taken.add(ph.origin_url)
     }
     await db.from('nj_feedback').update({ message: 'imagem_ruim_tratada' }).eq('id', f.id)
@@ -40,7 +40,8 @@ for (const b of (await db.from('nj_photo_blocklist').select('origin_url')).data 
   const { data: rec } = await db.from('nj_articles').select('photo:nj_photos(origin_url)').gte('published_at', since).not('photo_id', 'is', null)
   for (const r of rec ?? []) if (r.photo?.origin_url) taken.add(r.photo.origin_url)
 }
-let q = db.from('nj_articles').select('id,slug,category,title,photo_query,sources,entity_id').eq('status', 'publicado').is('photo_id', null).eq('is_placeholder', false).limit(60)
+// Fila: publicadas sem foto + matérias retiradas do ar à espera de foto (needs_photo). Ao achar foto, voltam a publicado.
+let q = db.from('nj_articles').select('id,slug,category,title,photo_query,sources,entity_id,needs_photo').is('photo_id', null).eq('is_placeholder', false).or('status.eq.publicado,needs_photo.eq.true').limit(60)
 const { data: arts, error } = await q
 if (error) { console.error(error.message); process.exit(1) }
 if (!refazer) for (const p of (await db.from('nj_photos').select('origin_url')).data ?? []) taken.add(p.origin_url)
@@ -62,7 +63,8 @@ for (const a of arts ?? []) {
   }
   // 2b) Pexels (se houver chave): foto bonita e bem ranqueada para a consulta específica, sem pessoas; alt não pode ser de outro assunto
   const grp = topicGroup(a.title, a.photo_query ?? '')
-  const spec = [...new Set([...(a.photo_query ? [a.photo_query] : []), ...queriesFromTitle(a.title)])]
+  // consultas montadas a partir da notícia: entidade + objeto, objeto + lugar, objeto
+  const spec = newsQueries(a.title, a.photo_query, ent?.name ?? null)
   if (!chosen && PEXELS && !isAbstractStory(a.title)) for (const q of spec) {
     try {
       const found = (await searchPexels(q, PEXELS)).filter((p) => !taken.has(p.origin_url) && (!p.text || photoInGroup({ text: p.text }, grp)) && !placeMismatch(a.title, p, br))
@@ -72,7 +74,7 @@ for (const a of arts ?? []) {
   }
   // 3) foto do MESMO assunto (grupo) e com termos em comum; matéria brasileira não usa foto estrangeira. Sem tema genérico.
   const group = topicGroup(a.title, a.photo_query ?? '')
-  const specific = [...new Set([...(a.photo_query ? [a.photo_query] : []), ...queriesFromTitle(a.title)])]
+  const specific = newsQueries(a.title, a.photo_query, null)
   const tiers = br ? [...specific.map((q) => `${q} Brazil`), ...specific] : specific
   if (!chosen && !isAbstractStory(a.title)) for (const q of tiers) {
     try {
@@ -112,10 +114,16 @@ for (const a of arts ?? []) {
     if (!logo && ent.site) { const u = await siteLogo(ent.site); if (u) logo = { url: u, origin_url: ent.site, license: 'logo (uso editorial)' } }
     if (logo) chosen = { ...logo, credit: ent.name, q: `logo ${ent.name}`, kind: 'logo' }
   }
-  if (!chosen) { console.log(`[SEM FOTO] ${a.slug}`); continue }
+  if (chosen && !(await imageLoads(chosen.url))) { console.log(`  imagem não abre: ${chosen.url}`); taken.add(chosen.origin_url); chosen = null }
+  if (!chosen) {
+    console.log(`[SEM FOTO] ${a.slug}`)
+    // nunca publicada sem imagem: sai do ar até ganhar foto
+    await db.from('nj_articles').update({ status: 'em_revisao', needs_photo: true }).eq('id', a.id).eq('status', 'publicado')
+    continue
+  }
   const { data: ph, error: e1 } = await db.from('nj_photos').insert({ theme: chosen.q, url: chosen.url, origin_url: chosen.origin_url, license: chosen.license, credit: chosen.credit, has_people: false, has_logos: false, license_verified: true, kind: chosen.kind ?? 'photo', description: (chosen.text ?? '').slice(0, 400) }).select('id').single()
   if (e1) { console.log(`[ERRO] ${a.slug}: ${e1.message}`); continue }
-  await db.from('nj_articles').update({ photo_id: ph.id }).eq('id', a.id)
+  await db.from('nj_articles').update(a.needs_photo ? { photo_id: ph.id, status: 'publicado', needs_photo: false } : { photo_id: ph.id }).eq('id', a.id)
   taken.add(chosen.origin_url); ok++
   console.log(`[OK ] ${a.slug} <- ${chosen.license} · ${chosen.origin_url}`)
 }

@@ -244,3 +244,39 @@ const COLD_PHOTO = /\b(snow\w*|winter|ice|icy|frozen|neve|inverno|gelo|ski)\b/i
 export function placeMismatch(storyText: string, photo: { text: string }, brazil = false): boolean {
   return (brazil || HOT_PLACE.test(storyText)) && COLD_PHOTO.test(photo.text)
 }
+
+// ---------------------------------------------------------------------------
+// Lugar da notícia: "saneamento no estado X" pede foto de saneamento DO estado X.
+// ---------------------------------------------------------------------------
+const UFS: Record<string, string> = { AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará', DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MT: 'Mato Grosso', MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará', PB: 'Paraíba', PR: 'Paraná', PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte', RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima', SC: 'Santa Catarina', SP: 'São Paulo', SE: 'Sergipe', TO: 'Tocantins' }
+const PLACES: [RegExp, string][] = [
+  [/\bBH\b|Belo Horizonte/i, 'Belo Horizonte'], [/Bras[ií]lia|\bDF\b|CAESB/i, 'Brasília'], [/Dubai/i, 'Dubai'], [/Abu Dhabi/i, 'Abu Dhabi'],
+  [/Leeds|York|Manchester|Reino Unido|brit[aâ]nic/i, 'United Kingdom'], [/EUA|americano|Estados Unidos/i, 'United States'], [/Jap[aã]o/i, 'Japan'],
+  [/Suape/i, 'Suape'], [/Itaja[ií]/i, 'Itajaí'], [/Juiz de Fora/i, 'Juiz de Fora'], [/S[aã]o Jos[eé] dos Campos/i, 'São José dos Campos'],
+]
+/** Lugar principal citado no título (cidade/estado/país), ou null. */
+export function placeOf(text: string): string | null {
+  for (const [re, p] of PLACES) if (re.test(text)) return p
+  const uf = text.match(/\(([A-Z]{2})\)|\b(?:do|da|de|no|na)\s+([A-Z]{2})\b/)
+  const sig = uf?.[1] ?? uf?.[2]
+  if (sig && UFS[sig]) return UFS[sig]
+  for (const nome of Object.values(UFS)) if (new RegExp(`\\b${nome}\\b`, 'i').test(text)) return nome
+  return null
+}
+/** Consultas específicas: entidade + objeto, objeto + lugar (PT e EN), depois objeto sozinho. */
+export function newsQueries(title: string, photoQuery: string | null, entityName: string | null): string[] {
+  const obj = [...(photoQuery ? [photoQuery] : []), ...queriesFromTitle(title)]
+  const place = placeOf(title)
+  const out: string[] = []
+  if (entityName) { out.push(entityName); for (const o of obj.slice(0, 2)) out.push(`${entityName} ${o}`) }
+  if (place) for (const o of obj) out.push(`${o} ${place}`)
+  out.push(...obj)
+  return [...new Set(out)]
+}
+/** A imagem abre de verdade (HTTP 200 e content-type de imagem)? */
+export async function imageLoads(u: string): Promise<boolean> {
+  try {
+    const r = await fetch(u, { method: 'GET', headers: { 'user-agent': 'NeryJournalBot/1.0', range: 'bytes=0-2047' }, signal: AbortSignal.timeout(15000) })
+    return (r.status === 200 || r.status === 206) && /^image\//.test(r.headers.get('content-type') ?? '')
+  } catch { return false }
+}

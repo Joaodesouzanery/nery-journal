@@ -51,7 +51,7 @@ for (const a of arts ?? []) {
     } else {
       await db.from('nj_photo_blocklist').upsert({ origin_url: a.photo.origin_url, reason: `curador: ${r.motivo}`.slice(0, 300) }, { onConflict: 'origin_url' })
       await db.from('nj_photos').update({ approved: false, reviewed_at: now, review_note: r.motivo }).eq('id', a.photo.id)
-      await db.from('nj_articles').update({ photo_id: null }).eq('id', a.id)
+      await db.from('nj_articles').update({ status: 'em_revisao', needs_photo: true, photo_id: null }).eq('id', a.id)
       bad++; console.log(`[REPROVADA] ${a.slug}: ${r.motivo}`)
     }
   } catch (e) { console.log(`[ERRO] ${a.slug}: ${e.message}`) }

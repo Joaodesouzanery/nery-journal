@@ -5,6 +5,13 @@ description: Regra do Nery Journal: toda matéria tem imagem e ela precisa ser F
 
 # Imagem obrigatória e fiel ao assunto
 
+**Regra do dono (07/11):** imagem do SETOR que converse com a notícia, sempre.
+- Notícia da CAESB → imagem da CAESB. Notícia de saneamento no estado X → imagem de saneamento DO estado X. Notícia do TCU → prédio/plenário do TCU.
+- A busca nasce da notícia: entidade + objeto + lugar (`newsQueries` em `collectors/photos.ts`), nunca termo genérico.
+- Logo SÓ se não houver nada correlato, interessante e bonito, e a matéria for SOBRE a entidade.
+- Nunca a mesma foto em duas matérias (30 dias). Nunca lugar contraditório (neve no Golfo/Brasil).
+- Sem imagem aprovada, a matéria não vai ao ar: o banco recusa `publicado` sem `photo_id` (migração 022), `nj-check-imagens.mjs` baixa cada imagem e tira do ar a que não abre ou se repete, e o agente `nj-foto-conferencia` olha cada foto antes de publicar.
+
 Nenhuma matéria publicada fica sem imagem, e a imagem precisa combinar com o assunto. Nunca criar ilustração; só foto da internet com licença livre (CC0/domínio público, sem crédito exibido) ou logo.
 
 Ordem de decisão (`scripts/nj-photos.mjs` faz; o agente `nj-imagem-revisor` confere):
