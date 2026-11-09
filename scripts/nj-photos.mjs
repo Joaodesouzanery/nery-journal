@@ -1,7 +1,7 @@
 // Liga fotos reais de licença livre (CC0/domínio público, sem exigência de crédito) às matérias publicadas sem foto.
 // Variáveis: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY. Fonte: Wikimedia Commons. Nunca usa fotos dos veículos.
 import { createClient } from '@supabase/supabase-js'
-import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels, groupQueries, placeMismatch, newsQueries, imageLoads } from '../collectors/photos.ts'
+import { photoQueries, searchCommons, bestPhoto, matchEntity, isBrazilStory, isForeignPhoto, searchLogo, isSectorPhoto, isAbstractStory, topicGroup, photoInGroup, queriesFromTitle, siteLogo, searchPexels, groupQueries, placeMismatch, newsQueries, imageLoads, searchOpenverse, searchPixabay, entityOgImage } from '../collectors/photos.ts'
 
 const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
@@ -48,6 +48,7 @@ if (!refazer) for (const p of (await db.from('nj_photos').select('origin_url')).
 
 let ok = 0
 const PEXELS = process.env.PEXELS_API_KEY
+const PIXABAY = process.env.PIXABAY_API_KEY
 const { data: entsData } = await db.from('nj_entities').select('id,name,aliases,country,logo_url,site')
 const ents = entsData ?? []
 for (const a of arts ?? []) {
@@ -60,6 +61,22 @@ for (const a of arts ?? []) {
       const found = (isAbstractStory(a.title) || ent.name.length <= 4) ? [] : (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && new RegExp(`\\b${ent.name.split(' ')[0].toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(p.text) && isSectorPhoto(p))
       if (found.length) chosen = { ...found[0], q: ent.name, kind: 'photo' }
     } catch (e) { console.log(`  entidade "${ent.name}": ${e}`) }
+  }
+  // 1b) foto de destaque do site oficial da entidade (CAESB -> foto da CAESB)
+  if (!chosen && ent?.site && !isAbstractStory(a.title)) {
+    const og = await entityOgImage(ent.site)
+    if (og && !taken.has(og)) chosen = { url: og, origin_url: og, license: 'uso editorial', credit: ent.name, q: `site ${ent.name}`, kind: 'photo', text: ent.name }
+  }
+  // 2a) Openverse (CC0/domínio público): consultas da notícia (entidade + objeto, objeto + lugar)
+  {
+    const g0 = topicGroup(a.title, a.photo_query ?? '')
+    if (!chosen && !isAbstractStory(a.title)) for (const q of newsQueries(a.title, a.photo_query, ent?.name ?? null)) {
+      try {
+        const found = (await searchOpenverse(q)).filter((p) => !taken.has(p.origin_url) && photoInGroup(p, g0) && !placeMismatch(a.title, p, br))
+        if (found.length) { chosen = { ...found[0], q, kind: 'photo' }; break }
+      } catch (e) { console.log(`  openverse "${q}": ${e}`) }
+      await new Promise((r) => setTimeout(r, 800))
+    }
   }
   // 2b) Pexels (se houver chave): foto bonita e bem ranqueada para a consulta específica, sem pessoas; alt não pode ser de outro assunto
   const grp = topicGroup(a.title, a.photo_query ?? '')
@@ -85,8 +102,24 @@ for (const a of arts ?? []) {
     } catch (e) { console.log(`  busca "${q}": ${e}`) }
     await new Promise((r) => setTimeout(r, 1200))
   }
+  // 3a) Pixabay (se houver chave)
+  if (!chosen && PIXABAY && !isAbstractStory(a.title)) for (const q of specific) {
+    try {
+      const found = (await searchPixabay(q, PIXABAY)).filter((p) => !taken.has(p.origin_url) && photoInGroup(p, group) && !placeMismatch(a.title, p, br))
+      if (found.length) { chosen = { ...found[0], q, kind: 'photo' }; break }
+    } catch (e) { console.log(`  pixabay "${q}": ${e}`) }
+  }
   // 3b) foto genérica do MESMO assunto (grupo), sem mínimo de termos; primeiro as ainda não usadas, depois (último recurso) qualquer uma
-  // Pexels genérico do grupo primeiro; depois Commons. Nunca repete foto (sem foto, a matéria fica escondida).
+  // Openverse genérico do grupo
+  if (!chosen) for (const q of groupQueries(group)) {
+    try {
+      const found = (await searchOpenverse(q)).filter((p) => !taken.has(p.origin_url) && photoInGroup(p, group) && !placeMismatch(a.title, p, br))
+      const pick = found[Math.floor(Math.random() * Math.min(found.length, 5))]
+      if (pick) { chosen = { ...pick, q, kind: 'photo' }; break }
+    } catch (e) { console.log(`  openverse grupo "${q}": ${e}`) }
+    await new Promise((r) => setTimeout(r, 800))
+  }
+  // Pexels genérico do grupo; depois Commons. Nunca repete foto (sem foto, a matéria fica escondida).
   if (!chosen && PEXELS) for (const q of groupQueries(group)) {
     try {
       const found = (await searchPexels(q, PEXELS)).filter((p) => !taken.has(p.origin_url) && !placeMismatch(a.title, p, br))

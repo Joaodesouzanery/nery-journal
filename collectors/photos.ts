@@ -280,3 +280,43 @@ export async function imageLoads(u: string): Promise<boolean> {
     return (r.status === 200 || r.status === 206) && /^image\//.test(r.headers.get('content-type') ?? '')
   } catch { return false }
 }
+
+// ---------------------------------------------------------------------------
+// Openverse (Creative Commons/WordPress): busca Flickr, Commons e outros acervos. Sem chave.
+// Só CC0 e domínio público (sem exigência de crédito).
+// ---------------------------------------------------------------------------
+export async function searchOpenverse(query: string): Promise<StockPhoto[]> {
+  const u = new URL('https://api.openverse.org/v1/images/')
+  u.search = new URLSearchParams({ q: query, license: 'cc0,pdm', page_size: '30', aspect_ratio: 'wide', size: 'large', mature: 'false' }).toString()
+  const res = await fetch(u, { headers: { 'user-agent': 'nery-journal-photos/0.2 (+https://github.com/Joaodesouzanery/nery-journal)' }, signal: AbortSignal.timeout(20000) })
+  if (!res.ok) throw new Error(`Openverse HTTP ${res.status}`)
+  const body = (await res.json()) as { results?: { url: string; foreign_landing_url?: string; title?: string; creator?: string; license: string; width?: number; height?: number; tags?: { name: string }[] }[] }
+  return (body.results ?? [])
+    .filter((p) => (p.width ?? 0) >= 1200 && (p.width ?? 0) >= (p.height ?? 0) * 1.2)
+    .map((p) => ({ url: p.url, origin_url: p.foreign_landing_url ?? p.url, license: p.license === 'pdm' ? 'Domínio público' : 'CC0', credit: p.creator ?? 'Openverse', width: p.width ?? 0, height: p.height ?? 0, text: `${query} ${(p.title ?? '').toLowerCase()} ${(p.tags ?? []).map((t) => t.name).join(' ').toLowerCase()}` }))
+    .filter((p) => !PEOPLE.test(p.text))
+}
+
+// Pixabay (licença sem crédito obrigatório). Opcional: PIXABAY_API_KEY.
+export async function searchPixabay(query: string, key: string): Promise<StockPhoto[]> {
+  const u = new URL('https://pixabay.com/api/')
+  u.search = new URLSearchParams({ key, q: query, image_type: 'photo', orientation: 'horizontal', min_width: '1600', safesearch: 'true', per_page: '30', lang: 'pt' }).toString()
+  const res = await fetch(u, { signal: AbortSignal.timeout(20000) })
+  if (!res.ok) throw new Error(`Pixabay HTTP ${res.status}`)
+  const body = (await res.json()) as { hits?: { pageURL: string; largeImageURL: string; tags: string; user: string; imageWidth: number; imageHeight: number }[] }
+  return (body.hits ?? [])
+    .map((p) => ({ url: p.largeImageURL, origin_url: p.pageURL, license: 'Pixabay Content License', credit: p.user, width: p.imageWidth, height: p.imageHeight, text: `${query} ${p.tags.toLowerCase()}` }))
+    .filter((p) => !PEOPLE.test(p.text))
+}
+
+/** Foto de destaque (og:image) do site oficial da entidade, se for foto grande (não ícone). */
+export async function entityOgImage(site: string): Promise<string | null> {
+  try {
+    const res = await fetch(site, { headers: { 'user-agent': 'nery-journal-photos/0.2' }, signal: AbortSignal.timeout(15000) })
+    if (!res.ok) return null
+    const html = await res.text()
+    const m = /<meta[^>]+property=["']og:image["'][^>]*content=["']([^"']+)["']/i.exec(html) ?? /<meta[^>]+content=["']([^"']+)["'][^>]*property=["']og:image["']/i.exec(html)
+    if (!m || /logo|icon|favicon/i.test(m[1])) return null
+    return new URL(m[1], site).toString()
+  } catch { return null }
+}

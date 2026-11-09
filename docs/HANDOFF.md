@@ -38,3 +38,8 @@ Do Claude (próximos passos): implementar Pexels + regras de lugar/repetição +
 
 ## Documentos
 `docs/pipeline-autoria.md`, `docs/melhorias-agentes.md`, `docs/produto-e-copys.md` (copys Stripe/Vercel), `docs/newsletter-fluxo.md`, `docs/custo-api.md` (estimativa de custo, de memória — conferir preços), `docs/pedido-de-feed.md`, `docs/plano-historico.md` (todo o histórico de decisões por rodada). Migrações em `supabase/migrations/005–020` (já aplicadas no GNC).
+
+## 09/11
+- Migrações 021 e 022 aplicadas no GNC: trava no banco (publicado exige foto) e fila `needs_photo` (matérias sem foto ficam em_revisao até ganhar foto e voltam sozinhas).
+- Fotos: Pexels suspendeu chaves novas. Ordem atual: foto/og:image da entidade → Openverse (CC0/domínio público, sem chave) → Pexels (se houver chave) → Commons → Pixabay (`PIXABAY_API_KEY`, opcional) → genérico do setor → logo.
+- Agente `nj-foto-conferencia` confere cada foto; `nj-check-imagens.mjs` tira do ar a que não abre ou se repete.
