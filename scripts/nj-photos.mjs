@@ -36,9 +36,10 @@ for (const b of (await db.from('nj_photo_blocklist').select('origin_url')).data 
 }
 // Nunca repetir foto em 30 dias: URLs já ligadas a matérias recentes ficam bloqueadas mesmo no "refazer".
 {
+  // histórico de fotos dos últimos 30 dias (inclusive as que foram desligadas no "refazer"): nunca reaproveitar
   const since = new Date(Date.now() - 30 * 864e5).toISOString()
-  const { data: rec } = await db.from('nj_articles').select('photo:nj_photos(origin_url)').gte('published_at', since).not('photo_id', 'is', null)
-  for (const r of rec ?? []) if (r.photo?.origin_url) taken.add(r.photo.origin_url)
+  const { data: rec } = await db.from('nj_photos').select('origin_url').gte('created_at', since)
+  for (const r of rec ?? []) taken.add(r.origin_url)
 }
 // Fila: publicadas sem foto + matérias retiradas do ar à espera de foto (needs_photo). Ao achar foto, voltam a publicado.
 let q = db.from('nj_articles').select('id,slug,category,title,photo_query,sources,entity_id,needs_photo').is('photo_id', null).eq('is_placeholder', false).or('status.eq.publicado,needs_photo.eq.true').limit(60)
@@ -161,4 +162,4 @@ for (const a of arts ?? []) {
   console.log(`[OK ] ${a.slug} <- ${chosen.license} · ${chosen.origin_url}`)
 }
 console.log(`${ok}/${(arts ?? []).length} matérias com foto`)
-if (refazer && velhas.length) await db.from('nj_photos').delete().in('id', velhas)
+// fotos antigas ficam guardadas: servem de histórico para não repetir em 30 dias
