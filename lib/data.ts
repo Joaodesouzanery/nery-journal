@@ -72,15 +72,17 @@ export async function getArticles(limit = 30): Promise<ArticleRow[]> {
     const { data, error } = await db.from('nj_articles').select(COLS).eq('sector', 'construcao')
       .not('photo_id', 'is', null) // trava real: matéria sem imagem não aparece no site
       .order('published_at', { ascending: false }).limit(limit)
-    if (error || !data || data.length === 0) return PLACEHOLDERS
-    const rows = data as (ArticleRow & { photo_id?: string | null })[]
+    if (error || !data) return PLACEHOLDERS
+    let rows = data as (ArticleRow & { photo_id?: string | null })[]
     // Fotos livres (CC0/domínio público) ligadas à matéria; sem foto, o site usa a ilustração do tema.
     const ids = [...new Set(rows.map((r) => r.photo_id).filter((x): x is string => !!x))]
     if (ids.length) {
-      const { data: photos } = await db.from('nj_photos').select('id,url,kind').in('id', ids)
+      // só foto APROVADA (conferida de olho): matéria sem foto aprovada não aparece
+      const { data: photos } = await db.from('nj_photos').select('id,url,kind').in('id', ids).eq('approved', true)
       const byId = new Map((photos ?? []).map((p: { id: string; url: string; kind: string }) => [p.id, p]))
-      for (const r of rows) { const ph = r.photo_id ? byId.get(r.photo_id) : undefined; r.photo_url = ph?.url ?? null; r.photo_kind = ph?.kind === 'logo' ? 'logo' : 'photo' }
-    }
+      rows = rows.filter((r) => r.photo_id && byId.has(r.photo_id))
+      for (const r of rows) { const ph = byId.get(r.photo_id!)!; r.photo_url = ph.url; r.photo_kind = ph.kind === 'logo' ? 'logo' : 'photo' }
+    } else rows = []
     // Sem foto fiel ao assunto, o script usa a logo da entidade/fonte; nunca foto aleatória.
     return rows
   } catch {

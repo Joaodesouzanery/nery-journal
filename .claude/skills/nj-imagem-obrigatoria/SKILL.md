@@ -5,6 +5,8 @@ description: Regra do Nery Journal: toda matéria tem imagem e ela precisa ser F
 
 # Imagem obrigatória e fiel ao assunto
 
+**Antes de tudo, leia `aprendizado.md` (nesta pasta) e atualize-o a cada revisão.** O site só mostra matéria com foto APROVADA (`nj_photos.approved=true`); quem aprova é o curador com visão (com `ANTHROPIC_API_KEY`) ou, até lá, o Claude no chat, olhando as miniaturas da branch `nj-review`.
+
 **Regra do dono (07/11):** imagem do SETOR que converse com a notícia, sempre.
 - Notícia da CAESB → imagem da CAESB. Notícia de saneamento no estado X → imagem de saneamento DO estado X. Notícia do TCU → prédio/plenário do TCU.
 - A busca nasce da notícia: entidade + objeto + lugar (`newsQueries` em `collectors/photos.ts`), nunca termo genérico.

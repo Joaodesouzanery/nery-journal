@@ -43,3 +43,10 @@ Do Claude (próximos passos): implementar Pexels + regras de lugar/repetição +
 - Migrações 021 e 022 aplicadas no GNC: trava no banco (publicado exige foto) e fila `needs_photo` (matérias sem foto ficam em_revisao até ganhar foto e voltam sozinhas).
 - Fotos: Pexels suspendeu chaves novas. Ordem atual: foto/og:image da entidade → Openverse (CC0/domínio público, sem chave) → Pexels (se houver chave) → Commons → Pixabay (`PIXABAY_API_KEY`, opcional) → genérico do setor → logo.
 - Agente `nj-foto-conferencia` confere cada foto; `nj-check-imagens.mjs` tira do ar a que não abre ou se repete.
+
+## 12/11
+- Site mostra SÓ matéria com foto APROVADA (`nj_photos.approved=true`, em lib/data.ts e lib/search.ts).
+- Até a ANTHROPIC_API_KEY entrar, quem aprova é o Claude no chat: o job nj-photos publica miniaturas na branch `nj-review`; ver `.claude/skills/nj-imagem-obrigatoria/aprendizado.md` (processo + erros/acertos, atualizar a cada revisão).
+- Instagram: sistema de 6 layouts no Claude Design (`docs/claude-design-brief.md`); todo dia o Claude manda um "pacote" por post.
+- Nery Regula: proposta aprovada em ideia (agências gov.br + MegaWhat, Agência iNFRA, Canal Energia, Globo/Valor, Estadão); implementar quando o dono mandar.
+- PENDENTE DO DONO (lembrar em toda rodada até ele confirmar): configurar a Anthropic — console.anthropic.com → créditos (US$ 10) → limite mensal US$ 20 → API key "nery-journal-github" → GitHub Secret `ANTHROPIC_API_KEY`.

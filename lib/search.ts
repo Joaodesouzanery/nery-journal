@@ -38,7 +38,7 @@ export async function pesquisar(t: string, limite = 20): Promise<Resultados> {
   if (!db) return out
   const p = `%${t}%`
   const [a, l] = await Promise.all([
-    db.from('nj_articles').select('slug,title,lede,category,published_at').eq('sector', 'construcao').not('photo_id', 'is', null)
+    db.from('nj_articles').select('slug,title,lede,category,published_at,nj_photos!inner(approved)').eq('sector', 'construcao').eq('nj_photos.approved', true)
       .or(`title.ilike.${p},lede.ilike.${p},body_md.ilike.${p}`).order('published_at', { ascending: false }).limit(limite),
     db.from('nj_licitacoes').select('pncp_id,objeto,orgao,uf,municipio,valor_estimado,link').eq('is_obra', true)
       .or(`objeto.ilike.${p},orgao.ilike.${p},municipio.ilike.${p}`).order('publicado_em', { ascending: false }).limit(limite),

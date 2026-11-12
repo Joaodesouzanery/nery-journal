@@ -29,6 +29,7 @@ export default async function Home() {
         {c && <CoverCard a={c} className="c" />}
         {d && <CoverCard a={d} className="d" />}
       </section>
+      {!a && <p className="lead">Novas matérias em breve.</p>}
 
       {indicadores.length > 0 && (
         <section id="indicadores" aria-label="Indicadores" className="home-sec ind-strip">
