@@ -31,3 +31,10 @@ Padrões de reprovação (o que a busca ainda erra):
 ## Acertos (aprovadas e por quê)
 - Linhas de transmissão para leilão/rede elétrica; vertedouro para reservatórios; ETE aérea para Aesbe; ônibus elétrico carregando para BNDES/ônibus elétricos; muro de contenção junto a rio para contenção em Manaus; casa rural brasileira para MCMV Rural; portêineres no Rio para porto seco; duplicação de rodovia (og:image DNIT) para BR-020.
 - Logos de entidade aprovadas quando a matéria é SOBRE a entidade e é de mercado/institucional.
+
+## Revisão de 12/11 (2ª leva: 23 fotos, 4 aprovadas)
+- A busca voltou com OUTRAS fotos da mesma série reprovada (asfalto manual nas Filipinas _08/_12/_15/_17; adutora Bulacan _14) → virou regra no código: bloqueio por SÉRIE (mesmo nome sem o número final) e lista de padrões ruins (BAD em scripts/nj-photos.mjs).
+- Logo bloqueada (gov.br/ana) voltava como logo → corrigido: a logo também passa pela lista de bloqueio. Logo "Ana" vermelha apagada de nj_entities.
+- Bandeira do Brasil e organograma do MME (og:image de gov.br) não são foto → reprovar; gov.br raramente tem og:image boa.
+- Aprovadas: prédio residencial em obra (habitação/zoneamento), canteiro de estádio (estádio de Milão), logos Secovi e CNI (matérias institucionais).
+- Ainda sem foto boa: saneamento em cidades pequenas de MG/PA, passarela do DF, UBS, pontes rurais. Precisa de fonte com fotos do Brasil (Pixabay com chave, ou fotos oficiais das prefeituras/companhias).

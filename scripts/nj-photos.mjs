@@ -19,6 +19,13 @@ if (refazer) {
   await db.from('nj_articles').update({ status: 'em_revisao', needs_photo: true, photo_id: null }).eq('status', 'publicado')
 }
 const taken = new Set()
+// Bloqueio por SÉRIE (mesma foto com outro número: ..._08.jpg, ..._15.jpg) e por padrões já reprovados na revisão de olho.
+const stem = (u) => { try { u = decodeURIComponent(u) } catch {} ; return u.toLowerCase().replace(/[_\s-]*\(?\d{1,3}\)?(\.\w+)$/, '$1') }
+const BAD = /hot-mix_asphalt|dirty_jobs|haberkorn|acidente|bulacan|flag_of|bandeira_do_brasil|rikers|zoo/i
+const stems = new Set()
+const _add = taken.add.bind(taken), _has = taken.has.bind(taken)
+taken.add = (u) => { stems.add(stem(u)); return _add(u) }
+taken.has = (u) => _has(u) || stems.has(stem(u)) || BAD.test(u)
 // Fotos rejeitadas (botão "imagem não combina" em /social): nunca mais usadas; a matéria volta para a fila.
 for (const b of (await db.from('nj_photo_blocklist').select('origin_url')).data ?? []) taken.add(b.origin_url)
 {
@@ -146,6 +153,7 @@ for (const a of arts ?? []) {
     let logo = ent.logo_url ? { url: ent.logo_url, origin_url: ent.site ?? ent.logo_url, license: 'logo (uso editorial)' } : null
     if (!logo) { try { logo = await searchLogo(ent.name) } catch {} ; if (logo) await db.from('nj_entities').update({ logo_url: logo.url }).eq('id', ent.id) }
     if (!logo && ent.site) { const u = await siteLogo(ent.site); if (u) logo = { url: u, origin_url: ent.site, license: 'logo (uso editorial)' } }
+    if (logo && taken.has(logo.origin_url)) logo = null
     if (logo) chosen = { ...logo, credit: ent.name, q: `logo ${ent.name}`, kind: 'logo' }
   }
   if (chosen && !(await imageLoads(chosen.url))) { console.log(`  imagem não abre: ${chosen.url}`); taken.add(chosen.origin_url); chosen = null }
