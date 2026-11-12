@@ -21,5 +21,13 @@ Leia antes de escolher ou aprovar foto. Anote aqui todo erro e todo acerto que s
 - "school building São Paulo" → Zoológico de SP. Creche: "creche obra", "school construction Brazil"; exigir "school/creche/escola" no título da foto.
 - og:image de gov.br pode ser banner (ex.: DNIT "período eleitoral") → reprovar banners com texto.
 
-## Acertos (consultas que funcionaram)
-- (preencher)
+## Revisão de 12/11 (54 fotos: 17 aprovadas, 37 reprovadas)
+Padrões de reprovação (o que a busca ainda erra):
+- Matéria de MERCADO/POLÍTICA/ECONOMIA (jornada 6×1, PIB, reforma tributária, lucro de empresa) recebe guindaste ou obra genérica, muitas vezes repetida → para esse tipo, usar a LOGO da entidade (CBIC, SindusCon, Secovi foram aprovadas) ou não publicar.
+- Saneamento brasileiro (esgoto em MG, poços no PA, adutora em MG) recebe lago, barragem ou tubulação estrangeira com texto → o Commons tem pouco; precisa de foto da companhia/prefeitura (og:image do site do SAAE/DAAE) ou de Pixabay.
+- Obra específica (passarela, creche, UBS, ponte sobre córrego) recebe outro tipo de obra → exigir o objeto exato no título da foto (passarela/footbridge, creche/school, UBS/clinic, ponte pequena/culvert bridge).
+- Fotos com pessoas em destaque, texto/marca, carimbo de data, P&B antigas → reprovar sempre (dá para filtrar por palavras no título: "workers", "Dirty_Jobs", "Haberkorn", anos < 1990).
+- Logo errada: "Ana" vermelho NÃO é a ANA (Agência Nacional de Águas). Conferir a logo pelo site oficial.
+## Acertos (aprovadas e por quê)
+- Linhas de transmissão para leilão/rede elétrica; vertedouro para reservatórios; ETE aérea para Aesbe; ônibus elétrico carregando para BNDES/ônibus elétricos; muro de contenção junto a rio para contenção em Manaus; casa rural brasileira para MCMV Rural; portêineres no Rio para porto seco; duplicação de rodovia (og:image DNIT) para BR-020.
+- Logos de entidade aprovadas quando a matéria é SOBRE a entidade e é de mercado/institucional.
