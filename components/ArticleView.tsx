@@ -1,0 +1,44 @@
+import { notFound } from 'next/navigation'
+import { getArticle, fmtDate } from '@/lib/data'
+import { ArticleUseful } from '@/components/FeedbackModal'
+
+// Markdown mínimo e seguro: parágrafos e **negrito**, sem HTML bruto.
+function renderBody(md: string) {
+  return md.split(/\n{2,}/).map((p, i) => (
+    <p key={i}>{p.split(/(\*\*[^*]+\*\*)/g).map((t, j) => (t.startsWith('**') ? <strong key={j}>{t.slice(2, -2)}</strong> : t))}</p>
+  ))
+}
+
+export function ArticleView({ a }: { a: Awaited<ReturnType<typeof getArticle>> }) {
+  if (!a) notFound()
+  return (
+    <article className="article">
+      {!a.is_placeholder && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org', '@type': 'NewsArticle', headline: a.title, description: a.lede,
+          datePublished: a.published_at ?? undefined, inLanguage: 'pt-BR',
+          author: { '@type': 'Organization', name: 'Nery Journal' }, publisher: { '@type': 'Organization', name: 'Grupo Nery' },
+        }).replace(/</g, '\\u003c') }} />
+      )}
+      <div style={{ color: 'var(--muted)', fontSize: 14 }}>{a.category} • {fmtDate(a.published_at)}</div>
+      <h1>{a.title}</h1>
+      {a.photo_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={a.photo_url} alt="" style={{ width: '100%', aspectRatio: '16/9', objectFit: a.photo_kind === 'logo' ? 'contain' : 'cover', background: a.photo_kind === 'logo' ? '#fff' : undefined, padding: a.photo_kind === 'logo' ? '6% 20%' : undefined, boxSizing: 'border-box', border: a.photo_kind === 'logo' ? '1px solid #e3e7ea' : undefined, borderRadius: 8, margin: '8px 0 20px' }} />
+      )}
+      <p className="lede">{a.lede}</p>
+      {a.is_placeholder && <div className="disclosure"><b>EXEMPLO.</b> Conteúdo fictício para validar o layout. Não é notícia.</div>}
+      {a.facts && a.facts.length > 1 && !a.is_placeholder && (
+        <aside className="keyfacts" aria-label="Pontos principais"><b>Pontos principais</b><ul>{a.facts.map((f, i) => <li key={i}>{f}</li>)}</ul></aside>
+      )}
+      <div className="body">{renderBody(a.body_md)}</div>
+      {!a.is_placeholder && <ArticleUseful slug={a.slug} />}
+      <div className="src">
+        <b>Fontes</b>
+        <ul>
+          {a.sources.map((s, i) => <li key={i}>{s.url ? <a href={s.url} rel="noopener noreferrer">{s.name}</a> : s.name}{s.primary ? ' (fonte primária)' : ''}</li>)}
+        </ul>
+      </div>
+    </article>
+  )
+}

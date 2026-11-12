@@ -26,6 +26,7 @@ export function Header() {
             <li><Link href="/">Análises</Link></li>
             <li><Link href="/noticias">Notícias</Link></li>
             <li><Link href="/saneamento">Saneamento</Link></li>
+            <li><Link href="/regulacao">Regulação</Link></li>
             <li><Link href="/colunistas">Colunistas</Link></li>
             <li><Link href="/licitacoes/pro">Pro</Link></li>
             <li><Link href="/sobre">Sobre</Link></li>

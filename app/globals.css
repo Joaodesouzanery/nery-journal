@@ -316,3 +316,8 @@ a { color: inherit; }
 
 .gate-box { position: relative; } .gate-x { position: absolute; top: 8px; right: 12px; border: 0; background: none; font-size: 28px; line-height: 1; cursor: pointer; color: #555; }
 .gate { backdrop-filter: none; background: rgba(8,16,22,.55); }
+
+/* GN Regulação: mesmo layout, acento verde-petróleo (botões seguem azuis com texto branco) */
+.theme-regula { --accent: #0f766e; --regula-hi: #5eead4; }
+.regula-brand { font-family: var(--font-head); font-size: 44px; font-weight: 800; color: #0f766e; margin: 28px 0 8px; text-transform: uppercase; }
+.regula-brand span { display: block; font-family: var(--font); font-size: 12px; font-weight: 400; letter-spacing: .14em; color: var(--muted); }

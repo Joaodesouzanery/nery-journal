@@ -11,7 +11,7 @@ import { fmtDate } from '@/lib/data'
 import type { ArticleRow } from '@/lib/data'
 
 const catClass = (c: string) => 'cat-' + c.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]/g, '')
-const href = (a: ArticleRow) => `/construcao/${a.slug}`
+const href = (a: ArticleRow) => `/${a.sector === 'regulacao' ? 'regulacao' : 'construcao'}/${a.slug}`
 
 /** Cartão escuro (estilo "Latest insights"): fundo gráfico por categoria, sem foto até haver imagem licenciada. */
 export function CoverCard({ a, className = '' }: { a: ArticleRow; className?: string }) {

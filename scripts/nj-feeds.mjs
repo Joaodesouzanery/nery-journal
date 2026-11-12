@@ -8,7 +8,7 @@ if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ause
 const db = createClient(url, key, { auth: { persistSession: false } })
 const UA = 'nery-journal-collector/0.1 (+https://github.com/Joaodesouzanery/nery-journal)'
 
-const { data: sources, error } = await db.from('nj_sources').select('id,feed_url').eq('active', true).not('feed_url', 'is', null)
+const { data: sources, error } = await db.from('nj_sources').select('id,feed_url,sector').eq('active', true).not('feed_url', 'is', null)
 if (error) { console.error(error.message); process.exit(1) }
 
 let failed = 0
@@ -20,7 +20,7 @@ for (const s of sources) {
     const res = await fetch(u, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(20000) })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const items = parseItems(await res.text()).slice(0, 30).map((i) => ({
-      source_id: s.id, external_id: i.link, kind: 'noticia', title: i.title, url: i.link, summary: i.snippet, published_at: i.published_at, payload: {},
+      source_id: s.id, external_id: i.link, kind: 'noticia', title: i.title, url: i.link, summary: i.snippet, published_at: i.published_at, payload: {}, sector: s.sector ?? 'construcao',
     }))
     if (items.length) {
       const { error: e } = await db.from('nj_pauta_items').upsert(items, { onConflict: 'source_id,external_id', ignoreDuplicates: true })

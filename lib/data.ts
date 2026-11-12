@@ -65,14 +65,14 @@ function client() {
 
 const COLS = 'slug,sector,category,title,lede,body_md,sources,published_at,is_placeholder,ai_assisted,photo_id,cover,uf,facts'
 
-export async function getArticles(limit = 30): Promise<ArticleRow[]> {
+export async function getArticles(limit = 30, sector: 'construcao' | 'regulacao' = 'construcao'): Promise<ArticleRow[]> {
   const db = client()
-  if (!db) return PLACEHOLDERS
+  if (!db) return sector === 'construcao' ? PLACEHOLDERS : []
   try {
-    const { data, error } = await db.from('nj_articles').select(COLS).eq('sector', 'construcao')
+    const { data, error } = await db.from('nj_articles').select(COLS).eq('sector', sector)
       .not('photo_id', 'is', null) // trava real: matéria sem imagem não aparece no site
       .order('published_at', { ascending: false }).limit(limit)
-    if (error || !data) return PLACEHOLDERS
+    if (error || !data) return sector === 'construcao' ? PLACEHOLDERS : []
     let rows = data as (ArticleRow & { photo_id?: string | null })[]
     // Fotos livres (CC0/domínio público) ligadas à matéria; sem foto, o site usa a ilustração do tema.
     const ids = [...new Set(rows.map((r) => r.photo_id).filter((x): x is string => !!x))]
@@ -145,8 +145,8 @@ export async function getRadar(limit = 60): Promise<RadarItem[]> {
   }
 }
 
-export async function getArticle(slug: string): Promise<ArticleRow | null> {
-  const all = await getArticles(100)
+export async function getArticle(slug: string, sector: 'construcao' | 'regulacao' = 'construcao'): Promise<ArticleRow | null> {
+  const all = await getArticles(100, sector)
   return all.find((a) => a.slug === slug) ?? null
 }
 

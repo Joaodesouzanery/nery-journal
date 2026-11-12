@@ -50,3 +50,13 @@ Do Claude (próximos passos): implementar Pexels + regras de lugar/repetição +
 - Instagram: sistema de 6 layouts no Claude Design (`docs/claude-design-brief.md`); todo dia o Claude manda um "pacote" por post.
 - Nery Regula: proposta aprovada em ideia (agências gov.br + MegaWhat, Agência iNFRA, Canal Energia, Globo/Valor, Estadão); implementar quando o dono mandar.
 - PENDENTE DO DONO (lembrar em toda rodada até ele confirmar): configurar a Anthropic — console.anthropic.com → créditos (US$ 10) → limite mensal US$ 20 → API key "nery-journal-github" → GitHub Secret `ANTHROPIC_API_KEY`.
+
+## 12/11 (tarde): duas marcas
+- O dono decidiu: **GN Construção** e **GN Regulação**, "do Grupo Nery", em dois Instagrams. Ver `docs/estrategia-marca-assinatura.md`.
+- O site ganhou `/regulacao`, com tema verde-petróleo e a mesma trava de foto aprovada. `getArticles(limit, sector)`.
+- Migração 023 (aplicada na GNC): coluna `sector` em nj_sources e nj_pauta_items, mais 12 fontes de regulação (9 com RSS gov.br).
+- Docs novos: `docs/claude-design-projeto.md`, `docs/fontes-mapa.md`, `docs/posts/2026-11-12.md`.
+- **Pendente:**
+  - os 3 rascunhos de 12/11 (em_revisao) precisam do check e da limpeza das frases sem fonte;
+  - a rodada das 07h deve gerar 3 matérias de cada marca;
+  - o dono deve confirmar os @, as logos e a ANTHROPIC_API_KEY.
