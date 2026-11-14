@@ -60,3 +60,12 @@ Do Claude (próximos passos): implementar Pexels + regras de lugar/repetição +
   - os 3 rascunhos de 12/11 (em_revisao) precisam do check e da limpeza das frases sem fonte;
   - a rodada das 07h deve gerar 3 matérias de cada marca;
   - o dono deve confirmar os @, as logos e a ANTHROPIC_API_KEY.
+
+## 14/11
+- Revisão de fotos: 2 aprovadas, 10 reprovadas. 16 matérias no ar.
+- Novos rascunhos de Construção: SE-170 (SE), Ecoporanga (ES), CMEIs (GO). Itaquera voltou para em_revisao.
+- **Regulação travada:**
+  - Os RSS gov.br por agência dão 404. Os `reg-*` estão sem feed.
+  - A pauta de regulação hoje só vem da Agência iNFRA, que é veículo e não serve de fonte primária.
+  - O www.gov.br não abre na rede da sessão.
+  - **Próximo passo:** um coletor no Actions que leia as páginas de notícias das agências.
