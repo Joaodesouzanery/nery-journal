@@ -11,6 +11,10 @@ const UA = 'nery-journal-collector/0.1 (+https://github.com/Joaodesouzanery/nery
 const { data: sources, error } = await db.from('nj_sources').select('id,feed_url,sector').eq('active', true).not('feed_url', 'is', null)
 if (error) { console.error(error.message); process.exit(1) }
 
+// Regulação: links das agências no gov.br ou fontes marcadas como regulacao
+const REG = /gov\.br\/(ana|aneel|anp|antt|antaq|anac|anatel|anm|cade|arsesp)\//i
+const sectorOf = (src, link) => (src.sector === 'regulacao' || REG.test(link ?? '')) ? 'regulacao' : 'construcao'
+
 let failed = 0
 for (const s of sources) {
   try {
@@ -20,7 +24,7 @@ for (const s of sources) {
     const res = await fetch(u, { headers: { 'user-agent': UA }, signal: AbortSignal.timeout(20000) })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const items = parseItems(await res.text()).slice(0, 30).map((i) => ({
-      source_id: s.id, external_id: i.link, kind: 'noticia', title: i.title, url: i.link, summary: i.snippet, published_at: i.published_at, payload: {}, sector: s.sector ?? 'construcao',
+      source_id: s.id, external_id: i.link, kind: 'noticia', title: i.title, url: i.link, summary: i.snippet, published_at: i.published_at, payload: {}, sector: sectorOf(s, i.link),
     }))
     if (items.length) {
       const { error: e } = await db.from('nj_pauta_items').upsert(items, { onConflict: 'source_id,external_id', ignoreDuplicates: true })
