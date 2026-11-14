@@ -38,3 +38,14 @@ Padrões de reprovação (o que a busca ainda erra):
 - Bandeira do Brasil e organograma do MME (og:image de gov.br) não são foto → reprovar; gov.br raramente tem og:image boa.
 - Aprovadas: prédio residencial em obra (habitação/zoneamento), canteiro de estádio (estádio de Milão), logos Secovi e CNI (matérias institucionais).
 - Ainda sem foto boa: saneamento em cidades pequenas de MG/PA, passarela do DF, UBS, pontes rurais. Precisa de fonte com fotos do Brasil (Pixabay com chave, ou fotos oficiais das prefeituras/companhias).
+
+## Revisão 14/11 (12 fotos: 2 aprovadas, 10 reprovadas)
+- **Aprovadas:** ponte em construção sobre rio (AGU, ponte do Araguaia) e logo da Motiva (a matéria é sobre a empresa).
+- **Erros novos:**
+  - **Tema genérico com país ("bridge Brazil") traz foto turística do Rio:** placa, ambulantes, prédios. Uma foto do Rio de Janeiro não serve para MG nem para SP. O tema precisa ter o OBJETO (viaduto, ponte de concreto, obra), e o lugar só entra se for o lugar da notícia.
+  - **"Ana_logo.svg" no Commons é OUTRA marca** (círculo vermelho), não a Agência Nacional de Águas. A logo da ANA vai à mão.
+  - **gov.br/mme como logo virou bandeira estilizada.** Página de órgão não é logo.
+  - **Túnel genérico (China ou outro país) para "área de escape", "PPP de estradas":** reprovado.
+  - **Hospital da Tailândia para UBS em SP:** reprovado. UBS pede foto de UBS ou posto de saúde brasileiro, ou então fica sem foto.
+  - **Westminster Bridge para ponte ferroviária de Leeds, Gatwick para aeroportos de Manchester:** lugar errado no mesmo país também reprova.
+- **Regra reforçada:** na dúvida, reprovar. A matéria fica fora do site até ter foto fiel.
