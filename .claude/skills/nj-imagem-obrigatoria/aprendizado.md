@@ -49,3 +49,12 @@ Padrões de reprovação (o que a busca ainda erra):
   - **Hospital da Tailândia para UBS em SP:** reprovado. UBS pede foto de UBS ou posto de saúde brasileiro, ou então fica sem foto.
   - **Westminster Bridge para ponte ferroviária de Leeds, Gatwick para aeroportos de Manchester:** lugar errado no mesmo país também reprova.
 - **Regra reforçada:** na dúvida, reprovar. A matéria fica fora do site até ter foto fiel.
+
+## Revisão 15/11 (5 fotos: 2 aprovadas, 3 reprovadas)
+- **Aprovadas:** foto do próprio DNIT para obra do DNIT (o og:image da entidade funciona bem) e logo da Ultracargo em matéria sobre a empresa.
+- **Reprovadas:**
+  - a ponte Rio-Niterói voltou para o viaduto de Itaquera;
+  - ponte da Venezuela para ponte ferroviária inglesa;
+  - obra de rua no Japão para rodovia BR-267.
+- **Padrão:** a busca por "bridge Brazil/viaduct" cai sempre no Rio. Para viaduto ou ponte municipal sem foto do lugar, é melhor deixar sem foto do que usar ponte famosa.
+- **Gargalo:** 60 matérias de Construção e 4 de Regulação estão sem foto aprovada. A fonte que mais acerta é a imagem da própria entidade (og:image do gov.br e do órgão), então vale priorizá-la.
