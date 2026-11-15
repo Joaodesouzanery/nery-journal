@@ -9,7 +9,7 @@ const { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: key } = process.env
 if (!url || !key) { console.error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY ausentes'); process.exit(2) }
 const db = createClient(url, key, { auth: { persistSession: false } })
 const UA = 'nery-journal-collector/0.1 (+https://github.com/Joaodesouzanery/nery-journal)'
-const LIMIT = Number(process.env.TEXTS_LIMIT || 60)
+const LIMIT = Number(process.env.TEXTS_LIMIT || 150)
 
 const { data: items } = await db.from('nj_pauta_items').select('id,url,title,source_id,published_at').eq('kind', 'noticia').not('url', 'is', null)
   .or(`published_at.gte.${new Date(Date.now() - 4 * 86400000).toISOString()},and(published_at.is.null,created_at.gte.${new Date(Date.now() - 4 * 86400000).toISOString()})`)
