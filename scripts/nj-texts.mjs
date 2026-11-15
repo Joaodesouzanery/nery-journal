@@ -21,7 +21,7 @@ const have = new Set((done ?? []).map((d) => d.url))
 // saneamento e fontes em português primeiro
 const pt = (u) => /\.br\b|\.br\//.test(u)
 const fila = (items ?? []).filter((i) => !have.has(i.url))
-  .sort((a, b) => (topic.get(b.source_id) === 'saneamento') - (topic.get(a.source_id) === 'saneamento') || pt(b.url) - pt(a.url)).slice(0, LIMIT)
+  .sort((a, b) => (b.source_id.startsWith('reg-') - a.source_id.startsWith('reg-')) || (topic.get(b.source_id) === 'saneamento') - (topic.get(a.source_id) === 'saneamento') || pt(b.url) - pt(a.url)).slice(0, LIMIT)
 
 const robots = new Map()
 const last = new Map()
