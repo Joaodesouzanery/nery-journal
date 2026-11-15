@@ -2,6 +2,7 @@ name: nj-feeds
 # Coleta as manchetes (radar) e o texto das fontes a cada 2 horas, antes das rodadas rápidas de matérias.
 on:
   push:
+    branches: [main]
     paths: ['.github/triggers/feeds']
   schedule:
     - cron: '55 10,12,14,16,18,20,22 * * *'   # 07:55, 09:55, ... 19:55 (Brasília)

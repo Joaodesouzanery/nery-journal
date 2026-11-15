@@ -2,16 +2,19 @@ name: nj-photos
 # Liga fotos reais de licença livre (CC0/domínio público) às matérias publicadas sem foto.
 on:
   push:
+    branches: [main]
     paths: ['.github/triggers/photos']
   schedule:
     - cron: '40 11,13,15,17,19,21,23 * * *'   # 40 min depois de cada rodada (a cada 2 h)
   workflow_dispatch:
 permissions:
   contents: write
+env:
+  HAS_CURATOR: ${{ secrets.ANTHROPIC_API_KEY != '' }}
 jobs:
   photos:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,6 +33,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - name: Repõe fotos das reprovadas e confere de novo
+        if: ${{ env.HAS_CURATOR == 'true' }}
         run: npm run nj:photos && npm run nj:curator
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
