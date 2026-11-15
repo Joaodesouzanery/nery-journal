@@ -69,3 +69,11 @@ Do Claude (próximos passos): implementar Pexels + regras de lugar/repetição +
   - A pauta de regulação hoje só vem da Agência iNFRA, que é veículo e não serve de fonte primária.
   - O www.gov.br não abre na rede da sessão.
   - **Próximo passo:** um coletor no Actions que leia as páginas de notícias das agências.
+
+## 15/11
+- **Coletor das agências:** `scripts/nj-agencias.mjs` + `collectors/agencias.ts`, rodando no job de feeds. Trazem itens: ANA, TCU, ANP, ANTT, ANM e CADE.
+- **Agências a corrigir:** ANEEL, ANAC e Anatel voltam com 0 itens; ANTAQ e Adasa dão 404. Falta ajustar as URLs.
+- **nj-texts:** as agências entram primeiro na fila, e o lote passou para 150.
+- **Matérias do TCU/Imis gravadas nos dois setores** (em_revisao, needs_photo), com o carrossel de 8 cards em cada versão em `docs/posts/carrossel-tcu-imis.md`.
+- **Pacote completo do Claude Design** em `docs/claude-design-projeto.md`.
+- **Custo estimado da API:** cerca de US$ 5/mês para Construção e US$ 6/mês para Regulação.
