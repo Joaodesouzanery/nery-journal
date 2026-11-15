@@ -12,7 +12,8 @@ const UA = 'nery-journal-collector/0.1 (+https://github.com/Joaodesouzanery/nery
 const LIMIT = Number(process.env.TEXTS_LIMIT || 60)
 
 const { data: items } = await db.from('nj_pauta_items').select('id,url,title,source_id,published_at').eq('kind', 'noticia').not('url', 'is', null)
-  .gte('published_at', new Date(Date.now() - 4 * 86400000).toISOString()).order('published_at', { ascending: false }).limit(400)
+  .or(`published_at.gte.${new Date(Date.now() - 4 * 86400000).toISOString()},and(published_at.is.null,created_at.gte.${new Date(Date.now() - 4 * 86400000).toISOString()})`)
+  .order('published_at', { ascending: false, nullsFirst: true }).limit(400)
 const { data: srcs } = await db.from('nj_sources').select('id,topic')
 const topic = new Map((srcs ?? []).map((s) => [s.id, s.topic]))
 const { data: done } = await db.from('nj_source_texts').select('url')

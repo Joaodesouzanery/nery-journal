@@ -20,6 +20,11 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       - if: ${{ !cancelled() }}
+        run: npm run nj:agencias
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - if: ${{ !cancelled() }}
         run: npm run nj:texts
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
