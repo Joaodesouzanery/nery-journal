@@ -58,3 +58,7 @@ Padrões de reprovação (o que a busca ainda erra):
   - obra de rua no Japão para rodovia BR-267.
 - **Padrão:** a busca por "bridge Brazil/viaduct" cai sempre no Rio. Para viaduto ou ponte municipal sem foto do lugar, é melhor deixar sem foto do que usar ponte famosa.
 - **Gargalo:** 60 matérias de Construção e 4 de Regulação estão sem foto aprovada. A fonte que mais acerta é a imagem da própria entidade (og:image do gov.br e do órgão), então vale priorizá-la.
+
+## Revisão 16/11 (2 logos: 1 aprovada, 1 reprovada)
+- **Aprovada:** logo da ANTT (Commons "Logo_ANTT.svg") em matéria sobre a ANTT.
+- **Reprovada:** "Logo_dnit_2024.png" no Commons é da DNIT do **Paraguai** (Dirección Nacional de Ingresos Tributarios), e não do DNIT brasileiro. **Sigla igual, país diferente:** conferir sempre se a logo é a da entidade brasileira.

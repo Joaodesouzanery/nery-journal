@@ -21,7 +21,7 @@ if (refazer) {
 const taken = new Set()
 // Bloqueio por SÉRIE (mesma foto com outro número: ..._08.jpg, ..._15.jpg) e por padrões já reprovados na revisão de olho.
 const stem = (u) => { try { u = decodeURIComponent(u) } catch {} ; return u.toLowerCase().replace(/[_\s-]*\(?\d{1,3}\)?(\.\w+)$/, '$1') }
-const BAD = /hot-mix_asphalt|dirty_jobs|haberkorn|acidente|bulacan|flag_of|bandeira_do_brasil|rikers|zoo|ana_logo|gov\.br\/mme$|food_vendors|bridge_sign|westminster_bridge|rio-niter|urdaneta_bridge|machine_crushing_asphalt/i
+const BAD = /hot-mix_asphalt|dirty_jobs|haberkorn|acidente|bulacan|flag_of|bandeira_do_brasil|rikers|zoo|ana_logo|gov\.br\/mme$|food_vendors|bridge_sign|westminster_bridge|rio-niter|urdaneta_bridge|machine_crushing_asphalt|logo_dnit_2024/i
 const stems = new Set()
 const _add = taken.add.bind(taken), _has = taken.has.bind(taken)
 taken.add = (u) => { stems.add(stem(u)); return _add(u) }
