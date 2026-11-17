@@ -62,3 +62,7 @@ Padrões de reprovação (o que a busca ainda erra):
 ## Revisão 16/11 (2 logos: 1 aprovada, 1 reprovada)
 - **Aprovada:** logo da ANTT (Commons "Logo_ANTT.svg") em matéria sobre a ANTT.
 - **Reprovada:** "Logo_dnit_2024.png" no Commons é da DNIT do **Paraguai** (Dirección Nacional de Ingresos Tributarios), e não do DNIT brasileiro. **Sigla igual, país diferente:** conferir sempre se a logo é a da entidade brasileira.
+
+## Revisão 17/11 (1 foto, reprovada)
+- A mesma foto de obra do DNIT voltou com outro endereço (@@images/<uuid> diferente) para outra matéria, a da BR-267 (MG). **O endereço muda, mas a imagem é a mesma.** Por isso a checagem de repetição precisa comparar o conteúdo da imagem (hash), não só o endereço. Pendência de código.
+- A busca rendeu pouco: só 1 foto nova em 24 h para mais de 60 matérias na fila.
