@@ -66,3 +66,12 @@ Padrões de reprovação (o que a busca ainda erra):
 ## Revisão 17/11 (1 foto, reprovada)
 - A mesma foto de obra do DNIT voltou com outro endereço (@@images/<uuid> diferente) para outra matéria, a da BR-267 (MG). **O endereço muda, mas a imagem é a mesma.** Por isso a checagem de repetição precisa comparar o conteúdo da imagem (hash), não só o endereço. Pendência de código.
 - A busca rendeu pouco: só 1 foto nova em 24 h para mais de 60 matérias na fila.
+
+## Revisões 19 a 21/11 (feitas em 21/11: 2 aprovadas, 2 reprovadas)
+- **Aprovadas:**
+  - ponte Gerdau-Açominas (Ouro Branco, MG) para a matéria do consórcio Ciminas. Lugar e objeto batem, e a matéria já está no ar;
+  - a foto de obra do DNIT para a matéria de projetos em BIM no Ceará.
+- **Reprovadas:**
+  - obra de rua em Tóquio para a matéria do SindusCon-SP;
+  - turbinas eólicas na Turquia para a bandeira verde da ANEEL.
+- **Problema:** a imagem do DNIT no gov.br muda de endereço (@@images/<uuid>) todo dia. A trava de imagem que não carrega derruba a foto, e a busca cria uma nova. Solução pendente: guardar a imagem no nosso storage, ou comparar pelo conteúdo (hash).
