@@ -4,7 +4,7 @@
 1. No Claude Design, crie o projeto **"GN Notícias"**.
 2. Cole o bloco **A** em "Instruções do projeto".
 3. Suba os arquivos do bloco **B**.
-4. Num chat do projeto, cole o bloco **C**. Ele gera os 16 templates (8 telas × 2 marcas).
+4. Num chat do projeto, cole o bloco **C**. Ele gera os 22 templates (11 telas × 2 marcas). Detalhes em "Passo a passo para começar no Claude Design".
 5. Ajuste o que precisar e peça: "salve cada tela como componente/template com o nome indicado".
 6. No dia a dia, cole um **PACOTE** (bloco **D**) e escolha o template.
 
@@ -54,45 +54,103 @@ Quando eu colar um PACOTE, monte a capa e as telas no template e na marca indica
 - O 1º post aprovado de cada marca, quando existir.
 
 ## C. Prompt para gerar os templates (colar num chat do projeto)
-```
-Crie 16 templates editáveis, 1080×1350, seguindo as instruções do projeto.
-Faça as 8 telas abaixo em DUAS versões: CONSTRUÇÃO (azul) e REGULAÇÃO (verde).
-Use placeholders nomeados: {FOTO}, {EDITORIA}, {MANCHETE}, {DESTAQUE}, {CIRCULO1}, {CIRCULO2}, {NUMERO}, {TEXTO}, {LISTA}, {N/T}.
 
-L1 FOTO CHEIA: {FOTO} cheia, assinatura no topo à esquerda, {EDITORIA} e {MANCHETE} embaixo (a manchete termina a 120 px da base).
-L2 FOTO + 1 CÍRCULO: L1 + {CIRCULO1} com 420 px de diâmetro, centro em (790, 330), borda branca de 6 px e sombra leve. Logo em fundo branco, centralizada.
-L3 FOTO + 2 CÍRCULOS: {CIRCULO1} com 380 px, centro em (800, 300); {CIRCULO2} com 300 px, centro em (620, 560), sobreposto em diagonal.
-L4 NÚMERO GRANDE: {FOTO} com overlay preto de 70%. {NUMERO} com 180–220 px, na cor de destaque, à esquerda, a 45% da altura. {MANCHETE} de 48 px abaixo.
-L5 LISTA DO DIA: fundo marinho. Título "LICITAÇÕES DO DIA" (Construção) ou "AGENDA REGULATÓRIA" (Regulação). {LISTA} de 3 a 5 linhas: tarja da UF ou sigla do órgão (na cor de acento) + texto + valor ou prazo à direita.
-L6 FIXADO / BOLETIM: fundo preto, assinatura grande, ícone de envelope, "Assine grátis o boletim" na cor de destaque e "Link na bio ↗".
-T  TELA INTERNA: a mesma {FOTO} com overlay de 80% (ou fundo marinho). {NUMERO} em destaque, {TEXTO} de até 45 palavras (34 px) e {N/T} no rodapé.
-F  TELA FINAL: fundo marinho, logo da marca, "Notícia completa no site — link na bio", botão azul #1a7aa8 "LEIA NO SITE" com texto branco, e faixa inferior "Patrocínio: WCR Saneamento".
+Catálogo de referência (28 prints de perfis de notícia, só como linguagem). Padrões vistos:
+- Marca pequena, branca, no canto superior esquerdo de todas as telas de notícia.
+- Editoria minúscula em caixa alta logo acima da manchete; manchete em caixa alta, bold, branca, alinhada à esquerda, no quinto inferior (de 70% a 92% da altura), sobre degradê preto.
+- Recortes circulares (logos ou fotos de contexto) no terço superior direito, 1 a 3, com fundo branco e às vezes sobrepostos.
+- Nome ou wordmark do assunto gigante no topo, integrado à foto (escrito em tipografia própria, nunca a logo de terceiros recriada).
+- Telas internas com a mesma linguagem: 2 blocos de texto (afirmação + complemento) ou parágrafo longo em caixa alta.
+- Tela de assinatura fixa: fundo preto, objeto (envelope) ao centro, chamada grande na cor de destaque, "Link na bio ↗".
+- Hierarquia: foto > manchete > editoria > marca. Sem créditos, sem botões, sem números gigantes (os números ficam como destaque de cor).
 
-Nomeie os templates assim: CON-L1 … CON-F e REG-L1 … REG-F.
-Mostre os 16 lado a lado com conteúdo de exemplo.
+O desenho do Grupo Nery é ORIGINAL: não copie logo, nome, fonte proprietária nem arte de nenhum perfil de referência.
+
 ```
+Crie os templates editáveis abaixo, 1080×1350, seguindo as instruções do projeto.
+Cada tela em DUAS versões: CONSTRUÇÃO (acento #1a7aa8, destaque #64D4E8) e REGULAÇÃO (acento #0f766e, destaque #5eead4).
+Botões, quando houver, SEMPRE azuis #1a7aa8 com texto branco, nas duas marcas.
+Nunca gere, desenhe ou invente imagem: {FOTO} e {CIRCULO} são só as URLs de fotos/logos reais que eu enviar. Sem crédito de foto, sem menção a IA.
+Fontes: Archivo Black (manchete) e Inter (resto). Não use fonte, logo ou arte de nenhum print de referência.
+
+ELEMENTOS COMUNS (telas de notícia)
+- {FOTO} full-bleed, cover. Degradê preto de baixo para cima: 0% em y=600, 88% em y=1350.
+- Assinatura no topo: "GN" bold 44 px + "Construção"/"Regulação" 28 px, branca, em x=64, y=64. Abaixo, "do Grupo Nery" 14 px, +200.
+- {EDITORIA}: Inter Bold 20 px, caixa alta, +300, branca, x=64, 24 px acima da manchete.
+- {MANCHETE}: Archivo Black 56–64 px, caixa alta, entrelinha 1,0, branca, x=64, largura 952, base em y=1230. 3 a 5 linhas.
+- {DESTAQUE}: 1 palavra ou número da manchete na cor de destaque da marca.
+- Indicador {N/T} 20 px, branco 70%, em x=1016 (alinhado à direita), y=1290. Ícone de carrossel 32 px em (1000, 64) na capa.
+
+CAPAS
+CON-C1 / REG-C1 FOTO CHEIA: elementos comuns, nada mais. Para foto forte de obra, pessoa ou lugar.
+CON-C2 / REG-C2 FOTO + 1 CÍRCULO: + {CIRCULO1} 360 px de diâmetro, centro (820, 330), fundo branco, borda 6 px na cor de acento, logo centralizada a 70%.
+CON-C3 / REG-C3 FOTO + 2 OU 3 CÍRCULOS: {CIRCULO1} 300 px centro (220, 420); {CIRCULO2} 280 px centro (840, 250); {CIRCULO3} opcional 260 px centro (860, 560). Fundo branco, borda 6 px na cor de acento, sombra 0 8 24 / 30%. Para notícias com 2–3 entidades (ex.: TCU + ministério + companhia).
+CON-C4 / REG-C4 NOME GIGANTE: {NOME} (sigla do órgão, obra ou projeto, ex.: "SE-170", "IMIS") em Archivo Black 150–190 px, branca, centrado em x=540, topo em y=150, com sombra suave; a foto continua por trás. Sem recriar logos de terceiros.
+CON-C5 / REG-C5 NÚMERO GRANDE: {FOTO} com overlay preto 65%. {NUMERO} Archivo Black 200 px, cor de destaque, x=64, base em y=760. {MANCHETE} 52 px abaixo (base y=1230).
+CON-C6 / REG-C6 FAIXA DE ENTIDADE: faixa branca 1080×150 em y=760 com {CIRCULO1} (logo) 110 px à esquerda (x=64) e {ENTIDADE} 48 px na cor de acento; manchete abaixo da faixa, 52 px, base y=1230. Foto em cima.
+
+TELAS INTERNAS
+CON-T1 / REG-T1 DOIS BLOCOS: mesma {FOTO} ou outra foto real, elementos comuns; {TEXTO_A} 48 px (afirmação) e, 40 px abaixo, {TEXTO_B} 40 px (complemento); {NUMERO} opcional na cor de destaque dentro do texto.
+CON-T2 / REG-T2 TEXTO LONGO: overlay preto 75% (ou fundo marinho #0b1f2a). {TEXTO} em caixa alta, Inter ExtraBold 34 px, entrelinha 1,15, até 60 palavras em 2 parágrafos, de y=780 a y=1230.
+CON-T3 / REG-T3 LISTA: fundo marinho. Título "LICITAÇÕES DO DIA" (CON) ou "AGENDA REGULATÓRIA" (REG), 44 px, y=180. {LISTA} de 3 a 5 linhas a cada 170 px a partir de y=360: tarja 120×56 na cor de acento com UF/sigla + texto 32 px + valor ou prazo à direita na cor de destaque.
+
+TELAS FIXAS
+CON-B / REG-B BOLETIM: fundo preto. Assinatura grande centrada (y=120). Envelope desenhado em formas simples (vetor geométrico, não foto) centrado em y=520, 520 px de largura, com cartão "Boletim GN · às 6h". Chamada "Assine grátis o boletim." Archivo Black 84 px, cor de destaque, centrada em y=1020. "Link na bio ↗" 36 px branco em y=1160.
+CON-F / REG-F FINAL: fundo marinho, assinatura centralizada em y=300, "Notícia completa no site — link na bio" 40 px em y=620, botão azul #1a7aa8 600×110 com texto branco "LEIA NO SITE" em y=760, faixa inferior 1080×160 (y=1190) branca: "Patrocínio: WCR Saneamento" + logo WCR.
+
+Placeholders: {FOTO}, {EDITORIA}, {MANCHETE}, {DESTAQUE}, {CIRCULO1}, {CIRCULO2}, {CIRCULO3}, {NOME}, {ENTIDADE}, {NUMERO}, {TEXTO}, {TEXTO_A}, {TEXTO_B}, {LISTA}, {N/T}.
+Mostre os 22 (11 × 2 marcas) lado a lado com conteúdo de exemplo, usando cinza neutro no lugar das fotos até eu mandar as URLs.
+```
+
+## Passo a passo para começar no Claude Design
+
+1. **Criar o projeto.** Em claude.ai, abra Claude Design → "Novo projeto" → nome **GN Notícias**.
+2. **Instruções.** Em "Instruções do projeto", cole o bloco **A** inteiro (acima). Salve.
+3. **Prints de referência (um por tipo).** Suba só estes 8 arquivos, com a nota "referência de linguagem, não copiar":
+   - C1 foto cheia: `Captura de Tela 2026-11-21 às 11.29.01.png` (Arquivo_5)
+   - C2 1 círculo: `Captura de Tela 2026-11-21 às 11.28.43.png` (Arquivo_6)
+   - C3 vários círculos: `Captura de Tela 2026-11-21 às 11.31.14.png` (Arquivo)
+   - C4 nome gigante: `Captura de Tela 2026-11-21 às 11.30.46.png` (Arquivo_4)
+   - C6 faixa de entidade: `Captura de Tela 2026-11-21 às 11.29.51.png` (Arquivo_5)
+   - T1 dois blocos: `Captura de Tela 2026-11-21 às 11.28.13.png` (Arquivo_7)
+   - T2 texto longo: `Captura de Tela 2026-11-21 às 11.31.34.png` (Arquivo)
+   - B boletim: `Captura de Tela 2026-11-21 às 11.28.27.png` (Arquivo_6)
+   (C5, T3 e F são nossos; não têm print.) Suba também as fontes e logos do bloco B, se já existirem.
+4. **Primeira mensagem (colar num chat novo do projeto):**
+```
+Olá. Vamos montar o sistema de posts do GN Construção e do GN Regulação.
+1) Leia as instruções do projeto.
+2) Os 8 prints anexados são só REFERÊNCIA DE LINGUAGEM (hierarquia, posição da manchete, círculos, faixa, tela de boletim). Não copie logo, nome, fonte nem arte deles; nosso desenho é original.
+3) Crie os templates abaixo exatamente com as posições indicadas, em 1080×1350.
+4) Regras fixas: botões azuis #1a7aa8 com texto branco; nunca gere ou desenhe foto (use só a URL de foto real que eu mandar; até lá, retângulo cinza); sem crédito de foto; sem menção a IA; a tela final sempre tem "Patrocínio: WCR Saneamento".
+5) No fim, liste os nomes dos 22 templates e me diga o que ficou ambíguo.
+
+[COLE AQUI O BLOCO C, do "Crie os templates" até "...até eu mandar as URLs."]
+```
+5. **Ajustar e salvar.** Peça correções por nome e medida ("CON-C3: suba o CIRCULO2 40 px", "REG-T2: texto 32 px"). Quando aprovar, diga: "Salve cada tela como template com o nome indicado (CON-C1 … REG-F) e não altere mais as posições sem eu pedir." Exporte um PNG de cada para conferência.
+6. **Testar com o pacote do TCU.** No mesmo projeto, cole a versão Regulação de `docs/posts/carrossel-tcu-imis.md` e peça: "Monte este carrossel: capa REG-C2 (círculo = logo do TCU que anexo), telas 2/8–7/8 em REG-T1 (número como destaque), final REG-F." Repita com a versão Construção (capa CON-C5 com 76%, telas CON-T1, final CON-F). Use só fotos aprovadas (URLs reais); se ainda não houver, deixe o cinza. Confira com o checklist F: cores, números iguais à matéria, WCR na tela final.
 
 ## D. Formato do PACOTE diário (eu entrego em docs/posts/AAAA-MM-DD.md)
 ```
-POST 1 — Template CON-L4
+POST 1 — Template CON-C5
 Editoria: ENGENHARIA · SERGIPE
 Manchete: DER/SE LICITA R$ 58,8 MI PARA DUPLICAR E RESTAURAR A SE-170 EM TOBIAS BARRETO
 Destaque: R$ 58,8 MI
 Foto: <URL da foto aprovada>
 Círculo 1: <URL da logo DER/SE>
-Telas (CON-T): 2/4 "…" 3/4 "…"
+Telas (CON-T1/T2): 2/4 "…" 3/4 "…"
 Final: CON-F
 Legenda: …
 Hashtags: …
 ```
 ```
-POST 1 — Template REG-L2
+POST 1 — Template REG-C2
 Editoria: SANEAMENTO · TCU
 Manchete: TCU CRIA INDICADOR PARA MEDIR A GESTÃO DO SANEAMENTO NOS MUNICÍPIOS
 Destaque: IMIS
 Foto: <URL aprovada: sede do TCU ou estação de tratamento>
 Círculo 1: <logo TCU>
-Telas (REG-T): 2/8 … 7/8
+Telas (REG-T1/T2): 2/8 … 7/8
 Final: REG-F
 ```
 
@@ -100,7 +158,7 @@ Final: REG-F
 ```
 Você é o editor de redes do GN Construção e do GN Regulação (Grupo Nery).
 Para cada matéria que eu colar (marca, título, lide, link), devolva UM PACOTE com:
-- Marca e template (CON-/REG- L1…L6) e o motivo em 1 linha
+- Marca e template (CON-/REG- C1…C6, T1…T3, B, F) e o motivo em 1 linha
 - Editoria
 - 2 opções de manchete em caixa alta, com até 16 palavras
 - Destaque (1 número ou palavra)

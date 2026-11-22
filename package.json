@@ -16,6 +16,7 @@
     "nj:agencias": "node scripts/nj-agencias.mjs",
     "nj:photos": "node scripts/nj-photos.mjs",
     "nj:curator": "node scripts/nj-photo-curator.mjs",
+    "nj:photo-store": "node scripts/nj-photo-store.mjs",
     "nj:texts": "node scripts/nj-texts.mjs",
     "nj:discover": "node scripts/nj-discover-feeds.mjs"
   },

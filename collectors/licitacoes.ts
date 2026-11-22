@@ -78,7 +78,7 @@ async function page(url: string): Promise<{ data?: PncpRaw[]; totalPaginas?: num
   throw new Error('PNCP: 429 persistente')
 }
 
-export async function collectPncpLicitacoes(daysBack = 2, maxPages = daysBack > 3 ? 20 : 6): Promise<{ ok: boolean; items: Licitacao[]; error?: string }> {
+export async function collectPncpLicitacoes(daysBack = 2, maxPages = 80): Promise<{ ok: boolean; items: Licitacao[]; error?: string }> {
   const items: Licitacao[] = []
   try {
     const fim = new Date()

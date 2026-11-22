@@ -18,3 +18,8 @@ test('parseAgencia pega só matérias abaixo da listagem, sem duplicar', () => {
   assert.equal(r[0].link, 'https://www.gov.br/aneel/pt-br/assuntos/noticias/2026/aneel-aprova-reajuste-tarifario-da-distribuidora-x')
   assert.equal(r[1].title, 'Consulta pública sobre geração distribuída & tarifas')
 })
+
+test('parseAgencia aceita notícia do mesmo órgão em outro caminho (ANEEL)', () => {
+  const r = parseAgencia('<a href="/aneel/pt-br/assuntos/noticias-e-eventos/noticias/2026/aneel-define-bandeira-tarifaria-de-dezembro-para-consumidores">ANEEL define bandeira tarifária de dezembro para consumidores</a><a href="/aneel/pt-br/acesso-a-informacao/institucional-e-estrutura-da-agencia">Institucional e estrutura da agência</a>', 'https://www.gov.br/aneel/pt-br/assuntos/noticias')
+  assert.equal(r.length, 1)
+})

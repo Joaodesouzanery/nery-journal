@@ -63,17 +63,17 @@ for (const a of arts ?? []) {
   let chosen = null
   const br = isBrazilStory(a.sources ?? [])
   const ent = (a.entity_id && ents.find((e) => e.id === a.entity_id)) || matchEntity(a.title, ents)
+  // 1b) foto de destaque do site oficial da entidade (CAESB -> foto da CAESB)
+  if (!chosen && ent?.site) { // primeiro: a foto do site da própria entidade (dono, 21/11)
+    const og = await entityOgImage(ent.site)
+    if (og && !taken.has(og)) chosen = { url: og, origin_url: og, license: 'uso editorial', credit: ent.name, q: `site ${ent.name}`, kind: 'photo', text: ent.name }
+  }
   // 1) foto livre da própria entidade; 2) logo da entidade
   if (ent) {
     try {
       const found = (isAbstractStory(a.title) || ent.name.length <= 4) ? [] : (await searchCommons(ent.name)).filter((p) => !taken.has(p.origin_url) && new RegExp(`\\b${ent.name.split(' ')[0].toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(p.text) && isSectorPhoto(p))
       if (found.length) chosen = { ...found[0], q: ent.name, kind: 'photo' }
     } catch (e) { console.log(`  entidade "${ent.name}": ${e}`) }
-  }
-  // 1b) foto de destaque do site oficial da entidade (CAESB -> foto da CAESB)
-  if (!chosen && ent?.site && !isAbstractStory(a.title)) {
-    const og = await entityOgImage(ent.site)
-    if (og && !taken.has(og)) chosen = { url: og, origin_url: og, license: 'uso editorial', credit: ent.name, q: `site ${ent.name}`, kind: 'photo', text: ent.name }
   }
   // 2a) Openverse (CC0/domínio público): consultas da notícia (entidade + objeto, objeto + lugar)
   {

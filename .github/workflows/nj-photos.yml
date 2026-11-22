@@ -41,6 +41,12 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Guarda cópia das fotos aprovadas (URL estável + hash contra repetição)
+        if: ${{ !cancelled() }}
+        run: npm run nj:photo-store
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       - name: Trava final (nenhuma matéria sem imagem)
         if: ${{ !cancelled() }}
         run: node scripts/nj-check-imagens.mjs

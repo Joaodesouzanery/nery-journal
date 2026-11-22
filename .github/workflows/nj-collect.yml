@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths: ['.github/triggers/collect']  # dispara por push deste arquivo (a integração não consegue usar o botão Run)
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 9,15,21 * * *'   # 06h, 12h e 18h (Brasília): pega quem publica atrasado
   workflow_dispatch:
     inputs:
       source:
@@ -19,7 +19,7 @@ on:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

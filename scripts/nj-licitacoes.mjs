@@ -19,4 +19,10 @@ if (url && key && r.items.length) {
   if (error) { console.error('supabase:', error.message); process.exit(1) }
   console.log('gravadas em nj_licitacoes')
 }
+// Alerta de cobertura: em dia útil, menos de 150 obras indica coleta cortada ou PNCP fora do ar.
+const dow = new Date().getUTCDay()
+if (r.ok && dias <= 3 && dow >= 2 && dow <= 6 && r.items.length < 150) {
+  console.error(`[ALERTA] só ${r.items.length} obras em ${dias} dia(s): cobertura baixa`)
+  process.exit(1)
+}
 process.exit(r.ok ? 0 : 1)
