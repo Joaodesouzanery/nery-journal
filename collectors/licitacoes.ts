@@ -78,7 +78,7 @@ async function page(url: string): Promise<{ data?: PncpRaw[]; totalPaginas?: num
   throw new Error('PNCP: 429 persistente')
 }
 
-export async function collectPncpLicitacoes(daysBack = 2, maxPages = 80): Promise<{ ok: boolean; items: Licitacao[]; error?: string }> {
+export async function collectPncpLicitacoes(daysBack = 2, maxPages = 80, onPage?: (lote: Licitacao[]) => Promise<void>): Promise<{ ok: boolean; items: Licitacao[]; error?: string }> {
   const items: Licitacao[] = []
   try {
     const fim = new Date()
@@ -88,10 +88,12 @@ export async function collectPncpLicitacoes(daysBack = 2, maxPages = 80): Promis
         const body = await page(`https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao?dataInicial=${ymd(ini)}&dataFinal=${ymd(fim)}&codigoModalidadeContratacao=${modalidade}&pagina=${p}&tamanhoPagina=50`)
         await sleep(5500)
         if (!body) break
+        const lote: Licitacao[] = []
         for (const raw of body.data ?? []) {
           const l = normalizePncp(raw)
-          if (l?.is_obra) items.push(l)
+          if (l?.is_obra) { items.push(l); lote.push(l) }
         }
+        if (onPage && lote.length) await onPage(lote) // grava a cada página: timeout não perde o que já veio
         if (p >= (body.totalPaginas ?? 1)) break
       }
     }
